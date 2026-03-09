@@ -1,0 +1,25 @@
+{
+  "bar": {
+    "tooltip": "MIME App Defaults"
+  },
+  "panel": {
+    "title": "MimeApp GUI",
+    "refresh": "Refresh",
+    "subtitle": "Select a default application for each MIME type. Changes are written to ~/.config/mimeapps.list.",
+    "loading": "Scanning desktop entries...",
+    "handler": {
+      "label": "Handler",
+      "description": "Choose the preferred desktop app"
+    },
+    "apply": {
+      "button": "Apply",
+      "saving": "Saving..."
+    }
+  },
+  "settings": {
+    "showOnlyConflicts": {
+      "label": "Show only MIME types with multiple handlers",
+      "description": "When disabled, all detected MIME types are listed."
+    }
+  }
+}
