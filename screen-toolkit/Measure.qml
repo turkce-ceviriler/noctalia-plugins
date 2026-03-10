@@ -83,95 +83,154 @@ Variants {
         property var _shotMeasure: null
         property string _shotColor: "#ffffff"
 
+        function _tr(key) {
+            return measureVariants.mainInstance?.pluginApi?.tr(key) ?? key
+        }
+
         Process {
             id: shotProc
+            stdout: StdioCollector {}
             onExited: (code) => {
                 overlayWin._isShooting = false
                 measureVariants.isVisible = true
-                if (code === 0)
-                    ToastService.showNotice(mainInstance.pluginApi.tr("messages.measure-saved"), "", "camera")
-                else
-                    ToastService.showError(mainInstance.pluginApi.tr("messages.measure-failed"))
+                if (code === 0) {
+                    var dest = shotProc.stdout.text.trim()
+                    ToastService.showNotice("Saved to " + (dest !== "" ? dest : "~/Pictures"), "", "camera")
+                } else
+                    ToastService.showError(overlayWin._tr("messages.measure-failed"))
             }
         }
 
+        // Writes the annotated screenshot script to a file then runs it.
+        // This avoids JSON.stringify injection into a Python one-liner and
+        // keeps shell quoting simple — all values are plain integers or hex colors.
         Timer {
             id: shotTimer
             interval: 400
             repeat: false
             onTriggered: {
                 var m = overlayWin._shotMeasure
-                if (!m) { overlayWin._isShooting = false; measureVariants.isVisible = true; return }
+                if (!m) {
+                    overlayWin._isShooting = false
+                    measureVariants.isVisible = true
+                    return
+                }
 
-                // grim uses LOGICAL pixels — no dpr multiplication
-                var pad = 24
+                var pad  = 40
                 var minX = Math.min(m.x1, m.x2)
                 var minY = Math.min(m.y1, m.y2)
                 var maxX = Math.max(m.x1, m.x2)
                 var maxY = Math.max(m.y1, m.y2)
 
-                // Always positive — never use overlayWin.width in rw calculation
                 var rx = Math.round(Math.max(0, minX - pad))
                 var ry = Math.round(Math.max(0, minY - pad))
                 var rw = Math.round(maxX + pad) - rx
                 var rh = Math.round(maxY + pad) - ry
 
-                // Draw coords relative to crop (also logical)
+                // Draw coords relative to the crop (all integers — no quoting issues)
                 var lx1 = Math.round(m.x1 - rx)
                 var ly1 = Math.round(m.y1 - ry)
                 var lx2 = Math.round(m.x2 - rx)
                 var ly2 = Math.round(m.y2 - ry)
                 var lw  = Math.abs(lx2 - lx1)
                 var lh  = Math.abs(ly2 - ly1)
-                var col = overlayWin._shotColor
+                var col = overlayWin._shotColor  // always a safe hex string like #A78BFA
 
-                // Build script lines — written to file, no shell escaping needed
-                var L = []
-                L.push("#!/bin/bash")
-                L.push("exec &>/tmp/measure-shot.log")   // log both stdout+stderr from start
-                L.push("CROP=/tmp/measure-crop.png")
-                L.push("OUT=/tmp/measure-out.png")
-                L.push("")
-                L.push("grim -g '" + rx + "," + ry + " " + rw + "x" + rh + "' \"$CROP\" || { echo 'grim failed'; exit 1; }")
-                L.push("")
-                L.push("magick \"$CROP\" \\")
-                L.push("  -strokewidth 1 -stroke 'rgba(255,255,255,0.3)' -fill none \\")
-                L.push("  -draw 'rectangle " + Math.min(lx1,lx2) + "," + Math.min(ly1,ly2) + " " + Math.max(lx1,lx2) + "," + Math.max(ly1,ly2) + "' \\")
-                L.push("  -strokewidth 2 -stroke '" + col + "' -fill '" + col + "' \\")
-                L.push("  -draw 'line " + lx1 + "," + ly1 + " " + lx2 + "," + ly2 + "' \\")
-                L.push("  -fill '" + col + "' -stroke none \\")
-                L.push("  -draw 'circle " + lx1 + "," + ly1 + " " + (lx1+5) + "," + ly1 + "' \\")
-                L.push("  -draw 'circle " + lx2 + "," + ly2 + " " + (lx2+5) + "," + ly2 + "' \\")
+                // Build the magick draw args as a flat array — no script file needed.
+                // Each -draw value is a separate array element so the shell never
+                // has to parse it; the Process API passes them as execvp() args directly.
+                var cmd = [
+                    "bash", "-c",
+                    // 1. grim crop
+                    "grim -g '" + rx + "," + ry + " " + rw + "x" + rh + "' /tmp/measure-crop.png || exit 1; " +
+                    // 2. magick annotate — all values are integers or safe hex, no user input
+                    (function() {
+                        var bx1 = Math.min(lx1,lx2), bx2 = Math.max(lx1,lx2)
+                        var by1 = Math.min(ly1,ly2), by2 = Math.max(ly1,ly2)
+                        var midX = Math.round((bx1+bx2)/2)
+                        var midY = Math.round((by1+by2)/2)
+                        var d = "magick /tmp/measure-crop.png"
 
-                if (lw > 20) {
-                    var mx  = Math.round((Math.min(lx1,lx2) + Math.max(lx1,lx2)) / 2)
-                    var tty = Math.max(14, Math.min(ly1,ly2) - 10)
-                    L.push("  -fill white -stroke none -pointsize 13 \\")
-                    L.push("  -draw 'text " + mx + "," + tty + " \"" + lw + "px\"' \\")
-                }
-                if (lh > 20) {
-                    var midy = Math.round((Math.min(ly1,ly2) + Math.max(ly1,ly2)) / 2)
-                    var ttx  = Math.max(14, Math.min(lx1,lx2) - 10)
-                    L.push("  -draw 'text " + ttx + "," + midy + " \"" + lh + "px\"' \\")
-                }
+                        // ── bounding box ──
+                        d += " -strokewidth 1 -stroke 'rgba(255,255,255,0.25)' -fill none"
+                        d += " -draw 'rectangle " + bx1 + "," + by1 + " " + bx2 + "," + by2 + "'"
 
-                L.push("  \"$OUT\" || { echo 'magick failed'; exit 1; }")
-                L.push("")
-                L.push("mkdir -p \"$HOME/Pictures\"")
-                L.push("cp \"$OUT\" \"$HOME/Pictures/measure-$(date +%s).png\" || { echo 'cp failed'; exit 1; }")
-                L.push("wl-copy -t image/png < \"$OUT\"")
-                L.push("rm -f \"$CROP\" \"$OUT\"")
-                L.push("echo 'done'")
+                        // ── corner dots ──
+                        d += " -fill 'rgba(255,255,255,0.6)' -stroke none"
+                        ;[[lx1,ly1],[lx2,ly2],[lx1,ly2],[lx2,ly1]].forEach(function(c) {
+                            d += " -draw 'circle " + c[0] + "," + c[1] + " " + (c[0]+3) + "," + c[1] + "'"
+                        })
 
-                var script = L.join("\n")
-                shotProc.exec({
-                    command: [
-                        "python3", "-c",
-                        "import subprocess\n" +
-                        "open('/tmp/measure-shot.sh','w').write(" + JSON.stringify(script) + ")\n" +
-                        "exit(subprocess.run(['bash','/tmp/measure-shot.sh']).returncode)"
-                    ]
-                })
+                        // ── diagonal line ──
+                        d += " -strokewidth 2 -stroke '" + col + "' -fill none"
+                        d += " -draw 'line " + lx1 + "," + ly1 + " " + lx2 + "," + ly2 + "'"
+
+                        // ── endpoint dots ──
+                        d += " -fill '" + col + "' -stroke none"
+                        d += " -draw 'circle " + lx1 + "," + ly1 + " " + (lx1+5) + "," + ly1 + "'"
+                        d += " -draw 'circle " + lx2 + "," + ly2 + " " + (lx2+5) + "," + ly2 + "'"
+
+                        // ── horizontal guide + plain text label ──
+                        if (lw > 20) {
+                            var htxt = lw + "px"
+                            var gy = by1 - 20
+                            var labelBelow = gy < 18
+                            gy = labelBelow ? by2 + 20 : gy
+                            d += " -strokewidth 1 -stroke 'rgba(255,255,255,0.5)' -fill none"
+                            d += " -draw 'line " + bx1 + "," + gy + " " + bx2 + "," + gy + "'"
+                            var tx = Math.max(6, Math.min(rw - htxt.length*8 - 6, midX - Math.round(htxt.length*4)))
+                            var ty = labelBelow ? gy + 16 : gy - 8
+                            d += " -fill white -stroke none -pointsize 13 -font DejaVu-Sans"
+                            d += " -draw 'text " + tx + "," + ty + " \"" + htxt + "\"'"
+                        }
+
+                        // ── vertical guide line ──
+                        if (lh > 20) {
+                            var vtxt2 = lh + "px"
+                            var vph2 = 22, vpw2 = vtxt2.length * 9 + 16
+                            var spaceLeft2 = minX - vph2 - 14
+                            var labelRight2 = spaceLeft2 < 4
+                            var gx2 = labelRight2 ? bx2 + 12 : bx1 - 12
+                            d += " -strokewidth 1 -stroke 'rgba(255,255,255,0.5)' -fill none"
+                            d += " -draw 'line " + gx2 + "," + by1 + " " + gx2 + "," + by2 + "'"
+                        }
+
+                        return d
+                    })() +
+                    " /tmp/measure-out.png || exit 1; " +
+                    // ── vertical pill label: separate magick pass, rotated, composited ──
+                    (function() {
+                        if (lh <= 20) return ""
+                        var bx1v = Math.min(lx1,lx2), bx2v = Math.max(lx1,lx2)
+                        var by1v = Math.min(ly1,ly2), by2v = Math.max(ly1,ly2)
+                        var midYv = Math.round((by1v+by2v)/2)
+                        var vtxt = lh + "px"
+                        var vph = 22, vpw = vtxt.length * 9 + 16
+                        var spaceLeft = minX - vph - 14
+                        var labelRight = spaceLeft < 4
+                        var compX = labelRight
+                            ? Math.min(rw - vph - 2, bx2v + 10)
+                            : Math.max(2, bx1v - 10 - vph)
+                        var compY = Math.max(2, Math.min(rh - vpw - 2, midYv - Math.round(vpw/2)))
+                        return "magick -size " + vpw + "x" + vph + " xc:'rgba(0,0,0,0)'" +
+                            " -fill white -stroke none -pointsize 13 -font DejaVu-Sans" +
+                            " -draw 'text " + (Math.round(vpw/2) - Math.round(vtxt.length*4)) + "," + (vph-6) + " \"" + vtxt + "\"'" +
+                            " -rotate -90" +
+                            " /tmp/measure-vlabel.png" +
+                            " && magick /tmp/measure-out.png /tmp/measure-vlabel.png" +
+                            " -geometry +" + compX + "+" + compY + " -composite" +
+                            " /tmp/measure-out.png" +
+                            " && rm -f /tmp/measure-vlabel.png; "
+                    })() +
+                    // 3. save + clipboard
+                    "DEST=$([ -d \"$HOME/Pictures/Screenshots\" ] && echo \"$HOME/Pictures/Screenshots\" || echo \"$HOME/Pictures\"); " +
+                    "cp /tmp/measure-out.png \"$DEST/measure-$(date +%s).png\" || exit 1; " +
+                    "wl-copy -t image/png < /tmp/measure-out.png || exit 1; " +
+                    "rm -f /tmp/measure-crop.png /tmp/measure-out.png; " +
+                    "echo \"$DEST\""
+                ]
+
+                shotProc.exec({ command: cmd })
             }
         }
 
@@ -316,13 +375,21 @@ Variants {
         Rectangle {
             id: activeCard
             visible: overlayWin.current !== null && !overlayWin.measuring
-            x: overlayWin.current
-               ? Math.max(8, Math.min((overlayWin.current.x1+overlayWin.current.x2)/2 - width/2, overlayWin.width-width-8))
-               : 0
+
+            property real ex: overlayWin.current ? overlayWin.current.x2 : 0
+            property real ey: overlayWin.current ? overlayWin.current.y2 : 0
+            property real rawX: ex + 16
+            property real rawY: ey + 16
+
+            x: {
+                var rx = rawX
+                if (rx + width + 8 > overlayWin.width) rx = ex - width - 16
+                return Math.max(8, rx)
+            }
             y: {
-                if (!overlayWin.current) return 0
-                var cy = (overlayWin.current.y1+overlayWin.current.y2)/2
-                return (cy - height - 16 > 8) ? cy - height - 16 : cy + 16
+                var ry = rawY
+                if (ry + height + 8 > overlayWin.height) ry = ey - height - 16
+                return Math.max(8, ry)
             }
             width: activeRow.implicitWidth + Style.marginL * 2
             height: activeRow.implicitHeight + Style.marginM * 2
@@ -346,7 +413,7 @@ Variants {
                     color: acopyBtn.containsMouse ? Color.mPrimary : Color.mSurfaceVariant
                     NIcon { anchors.centerIn: parent; icon: "copy"; color: acopyBtn.containsMouse ? Color.mOnPrimary : Color.mOnSurface; scale: 0.85 }
                     MouseArea { id: acopyBtn; anchors.fill: parent; hoverEnabled: true; cursorShape: Qt.PointingHandCursor
-                        onClicked: { measureVariants.copyResult(overlayWin.curDist + "px (" + Math.round(overlayWin.curW) + "×" + Math.round(overlayWin.curH) + ")"); ToastService.showNotice(mainInstance.pluginApi.tr("messages.measure-copied")) }
+                        onClicked: { measureVariants.copyResult(overlayWin.curDist + "px (" + Math.round(overlayWin.curW) + "×" + Math.round(overlayWin.curH) + ")"); ToastService.showNotice(overlayWin._tr("messages.measure-copied")) }
                         onEntered: TooltipService.show(acopyBtn, "Copy measurement"); onExited: TooltipService.hide()
                     }
                 }
@@ -366,7 +433,7 @@ Variants {
                     color: pinBtn.containsMouse ? Color.mPrimary : Color.mSurfaceVariant
                     NIcon { anchors.centerIn: parent; icon: "pin"; color: pinBtn.containsMouse ? Color.mOnPrimary : Color.mOnSurface; scale: 0.85 }
                     MouseArea { id: pinBtn; anchors.fill: parent; hoverEnabled: true; cursorShape: Qt.PointingHandCursor
-                        onClicked: { overlayWin.doPin(); ToastService.showNotice(mainInstance.pluginApi.tr("messages.measure-pinned")) }
+                        onClicked: { overlayWin.doPin(); ToastService.showNotice(overlayWin._tr("messages.measure-pinned")) }
                         onEntered: TooltipService.show(pinBtn, "Pin"); onExited: TooltipService.hide()
                     }
                 }
@@ -393,10 +460,15 @@ Variants {
                 readonly property real mh: Math.abs(mdata.y2 - mdata.y1)
                 readonly property real mdist: Math.round(Math.sqrt(mw*mw + mh*mh))
 
-                x: Math.max(8, Math.min((mdata.x1+mdata.x2)/2 - width/2, overlayWin.width-width-8))
+                x: {
+                    var rx = mdata.x2 + 16
+                    if (rx + width + 8 > overlayWin.width) rx = mdata.x2 - width - 16
+                    return Math.max(8, rx)
+                }
                 y: {
-                    var cy = (mdata.y1+mdata.y2)/2
-                    return (cy - height - 16 > 8) ? cy - height - 16 : cy + 16
+                    var ry = mdata.y2 + 16
+                    if (ry + height + 8 > overlayWin.height) ry = mdata.y2 - height - 16
+                    return Math.max(8, ry)
                 }
                 width: pinnedRow.implicitWidth + Style.marginL * 2
                 height: pinnedRow.implicitHeight + Style.marginM * 2
@@ -422,7 +494,7 @@ Variants {
                         color: pcopyBtn.containsMouse ? Color.mPrimary : Color.mSurfaceVariant
                         NIcon { anchors.centerIn: parent; icon: "copy"; color: pcopyBtn.containsMouse ? Color.mOnPrimary : Color.mOnSurface; scale: 0.8 }
                         MouseArea { id: pcopyBtn; anchors.fill: parent; hoverEnabled: true; cursorShape: Qt.PointingHandCursor
-                            onClicked: { measureVariants.copyResult(mdist + "px (" + Math.round(mw) + "×" + Math.round(mh) + ")"); ToastService.showNotice(mainInstance.pluginApi.tr("messages.measure-copied")) }
+                            onClicked: { measureVariants.copyResult(mdist + "px (" + Math.round(mw) + "×" + Math.round(mh) + ")"); ToastService.showNotice(overlayWin._tr("messages.measure-copied")) }
                             onEntered: TooltipService.show(pcopyBtn, "Copy"); onExited: TooltipService.hide()
                         }
                     }

@@ -12,22 +12,27 @@ Item {
     property bool isRunning: false
     property string activeTool: ""
     property string pendingLangStr: "eng"
+    property string pendingRecordFormat: "gif"
+    property bool pendingRecordAudioOut: false
+    property bool pendingRecordAudioIn: false
     property string pendingTool: ""
 
     readonly property string regionFile: "/tmp/screen-toolkit-region.txt"
 
-    // ── Settings shortcuts (mirrors official pattern) ─────────
     readonly property string selectedOcrLang: pluginApi?.pluginSettings?.selectedOcrLang || "eng"
 
     // ── Capability detection ──────────────────────────────────
-    property bool _capsDetected: false
+    // FIX: removed _capsDetected — Component.onCompleted only runs once, the guard was dead code
     property var _detectedLangs: []
 
-    Component.onCompleted: {
-        if (!_capsDetected) {
-            _capsDetected = true
-            detectCapabilities()
-        }
+    Component.onCompleted: detectCapabilities()
+
+    onPluginApiChanged: {
+        if (!pluginApi) return
+        pluginApi.pluginSettings.qrCapturePath = ""
+        pluginApi.pluginSettings.ocrCapturePath = ""
+        pluginApi.pluginSettings.colorCapturePath = ""
+        pluginApi.saveSettings()
     }
 
     // ── Processes ─────────────────────────────────────────────
@@ -90,7 +95,6 @@ Item {
             var g = parseInt(hex.slice(3, 5), 16)
             var b = parseInt(hex.slice(5, 7), 16)
             var rgb = "rgb(" + r + ", " + g + ", " + b + ")"
-            // HSV
             var rn = r/255, gn = g/255, bn = b/255
             var max = Math.max(rn,gn,bn), min = Math.min(rn,gn,bn)
             var d = max - min, hh = 0
@@ -103,7 +107,6 @@ Item {
                 hh = Math.round(hh * 60)
             }
             var hsv = "hsv(" + hh + ", " + Math.round(sv*100) + "%, " + Math.round(vv*100) + "%)"
-            // HSL
             var l  = (max + min) / 2
             var sl = (d === 0) ? 0 : d / (1 - Math.abs(2*l - 1))
             var hsl = "hsl(" + hh + ", " + Math.round(sl*100) + "%, " + Math.round(l*100) + "%)"
@@ -175,26 +178,47 @@ Item {
         }
     }
 
+    // FIX: race condition — annotateProc and annotateRegionProc ran concurrently but
+    // annotateProc.onExited was reading annotateRegionProc.stdout before it had finished.
+    // Now both signal completion and _tryShowAnnotate() only proceeds when both are done.
+    property bool _annotateImgDone: false
+    property bool _annotateRegionDone: false
+
+    function _tryShowAnnotate() {
+        if (!_annotateImgDone || !_annotateRegionDone) return
+        _annotateImgDone = false
+        _annotateRegionDone = false
+        root.isRunning = false
+        root.activeTool = ""
+        if (pluginApi) pluginApi.withCurrentScreen(screen => pluginApi.closePanel(screen))
+        var region = annotateRegionProc.stdout.text.trim()
+        Logger.i("ScreenToolkit", "annotate done, region=" + region)
+        annotateOverlay.parseAndShow(region, "/tmp/screen-toolkit-annotate.png")
+    }
+
     Process {
         id: annotateProc
         onExited: (code) => {
-            root.isRunning = false
-            if (code === 0) {
+            if (code !== 0) {
+                root.isRunning = false
                 root.activeTool = ""
-                if (pluginApi) pluginApi.withCurrentScreen(screen => pluginApi.closePanel(screen))
-                var region = annotateRegionProc.stdout.text.trim()
-                Logger.i("ScreenToolkit", "annotate done, region=" + region)
-                annotateOverlay.parseAndShow(region, "/tmp/screen-toolkit-annotate.png")
-            } else {
-                root.activeTool = ""
+                _annotateImgDone = false
+                _annotateRegionDone = false
                 ToastService.showError(pluginApi.tr("messages.capture-failed"))
+                return
             }
+            root._annotateImgDone = true
+            root._tryShowAnnotate()
         }
     }
 
     Process {
         id: annotateRegionProc
         stdout: StdioCollector {}
+        onExited: (code) => {
+            root._annotateRegionDone = true
+            root._tryShowAnnotate()
+        }
     }
 
     Process {
@@ -260,28 +284,33 @@ Item {
     }
 
     Process {
-        id: clipProc
+        id: recordRegionProc
+        stdout: StdioCollector {}
+        onExited: (code) => {
+            var region = recordRegionProc.stdout.text.trim()
+            root.isRunning = false
+            if (region !== "") {
+                root.activeTool = "record"
+                recordOverlay.startRecording(region, root.pendingRecordFormat, root.pendingRecordAudioOut, root.pendingRecordAudioIn)
+            } else {
+                root.activeTool = ""
+                ToastService.showError(pluginApi.tr("messages.capture-failed"))
+            }
+        }
     }
+
+    Process { id: clipProc }
 
     // ── Overlays ──────────────────────────────────────────────
-    Annotate {
-        id: annotateOverlay
-    }
+    Annotate  { id: annotateOverlay }
+    Measure   { id: measureOverlay; mainInstance: root }
+    Pin       { id: pinOverlay }
+    Record    { id: recordOverlay }
+    Mirror    { id: mirrorOverlay }
 
-    Measure {
-        id: measureOverlay
-        mainInstance: root
-    }
+    readonly property bool mirrorVisible: mirrorOverlay.isVisible
 
-    Pin {
-        id: pinOverlay
-    }
-
-    // ── Slurp flow ────────────────────────────────────────────
-
-    Process {
-        id: clearRegionProc
-    }
+    Process { id: clearRegionProc }
 
     Process {
         id: slurpProc
@@ -297,11 +326,15 @@ Item {
 
     property int _slurpPollCount: 0
 
+    // FIX: added busy guard — prevents slurpCheckProc.exec() stacking if previous
+    // poll hasn't returned yet (was possible at 200ms interval under load)
     Process {
         id: slurpCheckProc
+        property bool busy: false
         stdout: StdioCollector {}
         onExited: (code) => {
-            if (code !== 0) return   // file not ready yet — poll again next tick
+            busy = false
+            if (code !== 0) return
             var result = slurpCheckProc.stdout.text.trim()
             Logger.i("ScreenToolkit", "slurpCheck: " + result)
             slurpPollTimer.stop()
@@ -310,12 +343,7 @@ Item {
                 root.isRunning = false
                 root.activeTool = ""
             } else if (result === "ok") {
-                if      (root.pendingTool === "ocr")      launchOcr.start()
-                else if (root.pendingTool === "qr")       launchQr.start()
-                else if (root.pendingTool === "lens")     launchLens.start()
-                else if (root.pendingTool === "annotate") launchAnnotate.start()
-                else if (root.pendingTool === "pin")      launchPin.start()
-                else if (root.pendingTool === "palette")  launchPalette.start()
+                _dispatchPendingTool()
             }
         }
     }
@@ -380,6 +408,9 @@ Item {
                 Logger.i("ScreenToolkit", "slurp timed out")
                 return
             }
+            // FIX: skip if previous check hasn't returned yet — prevents exec() stacking
+            if (slurpCheckProc.busy) return
+            slurpCheckProc.busy = true
             slurpCheckProc.exec({
                 command: [
                     "bash", "-c",
@@ -400,10 +431,9 @@ Item {
             ocrProc.exec({
                 command: [
                     "bash", "-c",
-                    "REGION=$(cat " + root.regionFile + ") || exit 1; " +
-                    "grim -g \"$REGION\" /tmp/screen-toolkit-ocr.png 2>/dev/null; " +
+                    _grimRegionCmd("/tmp/screen-toolkit-ocr.png") + "; " +
                     "cat /tmp/screen-toolkit-ocr.png | tesseract - - -l " + root.pendingLangStr + " 2>/dev/null; " +
-                    "rm -f " + root.regionFile
+                    _rmRegion()
                 ]
             })
         }
@@ -416,10 +446,9 @@ Item {
             qrProc.exec({
                 command: [
                     "bash", "-c",
-                    "REGION=$(cat " + root.regionFile + ") || exit 1; " +
-                    "grim -g \"$REGION\" /tmp/screen-toolkit-qr.png 2>/dev/null; " +
+                    _grimRegionCmd("/tmp/screen-toolkit-qr.png") + "; " +
                     "zbarimg -q --raw /tmp/screen-toolkit-qr.png 2>/dev/null; " +
-                    "rm -f " + root.regionFile
+                    _rmRegion()
                 ]
             })
         }
@@ -432,11 +461,10 @@ Item {
             lensProc.exec({
                 command: [
                     "bash", "-c",
-                    "REGION=$(cat " + root.regionFile + ") || exit 1; " +
-                    "grim -g \"$REGION\" /tmp/screen-toolkit-lens.png 2>/dev/null && " +
+                    _grimRegionCmd("/tmp/screen-toolkit-lens.png") + " && " +
                     "notify-send 'Screen Toolkit' 'Uploading to Lens...' 2>/dev/null; " +
                     "URL=$(curl -sS -F 'file=@/tmp/screen-toolkit-lens.png' 'https://0x0.st' 2>/dev/null); " +
-                    "rm -f /tmp/screen-toolkit-lens.png; rm -f " + root.regionFile + "; " +
+                    "rm -f /tmp/screen-toolkit-lens.png; " + _rmRegion() + "; " +
                     "if [ -n \"$URL\" ]; then xdg-open \"https://lens.google.com/uploadbyurl?url=$URL\" 2>/dev/null; else exit 1; fi"
                 ]
             })
@@ -447,15 +475,17 @@ Item {
         id: launchAnnotate
         interval: 50; repeat: false
         onTriggered: {
+            // FIX: reset both flags before launching the two concurrent procs
+            root._annotateImgDone = false
+            root._annotateRegionDone = false
             annotateRegionProc.exec({
                 command: ["bash", "-c", "cat " + root.regionFile + " 2>/dev/null"]
             })
             annotateProc.exec({
                 command: [
                     "bash", "-c",
-                    "REGION=$(cat " + root.regionFile + ") || exit 1; " +
-                    "grim -g \"$REGION\" /tmp/screen-toolkit-annotate.png 2>/dev/null; " +
-                    "rm -f " + root.regionFile
+                    _grimRegionCmd("/tmp/screen-toolkit-annotate.png") + "; " +
+                    _rmRegion()
                 ]
             })
         }
@@ -473,7 +503,7 @@ Item {
                     "grim -g \"$REGION\" \"$FILE\" 2>/dev/null || exit 1; " +
                     "WH=$(echo \"$REGION\" | cut -d' ' -f2); " +
                     "echo \"$FILE|$WH\"; " +
-                    "rm -f " + root.regionFile
+                    _rmRegion()
                 ]
             })
         }
@@ -491,13 +521,54 @@ Item {
                     "grim -g \"$REGION\" \"$FILE\" 2>/dev/null || exit 1; " +
                     "magick \"$FILE\" +dither -colors 8 -unique-colors txt:- 2>/dev/null " +
                     "| grep -v '^#' | grep -oP '#[0-9a-fA-F]{6}' | head -8; " +
-                    "rm -f " + root.regionFile
+                    _rmRegion()
                 ]
             })
         }
     }
 
+    Timer {
+        id: launchRecord
+        interval: 50; repeat: false
+        onTriggered: {
+            recordRegionProc.exec({
+                command: ["bash", "-c", "cat " + root.regionFile + " && " + _rmRegion()]
+            })
+        }
+    }
+
     // ── Helpers ───────────────────────────────────────────────
+
+    function _grimRegionCmd(outFile) {
+        return "REGION=$(cat " + regionFile + ") || exit 1; " +
+               "grim -g \"$REGION\" " + outFile + " 2>/dev/null"
+    }
+
+    function _rmRegion() {
+        return "rm -f " + regionFile
+    }
+
+    function _runSlurpTool(tool) {
+        if (root.isRunning) return
+        root.pendingTool = tool
+        root.isRunning = true
+        closeThenLaunch(launchSlurp)
+    }
+
+    function _dispatchPendingTool() {
+        switch (root.pendingTool) {
+            case "ocr":      launchOcr.start();      break
+            case "qr":       launchQr.start();       break
+            case "lens":     launchLens.start();     break
+            case "annotate": launchAnnotate.start(); break
+            case "pin":      launchPin.start();      break
+            case "palette":  launchPalette.start();  break
+            case "record":   launchRecord.start();   break
+            default:
+                Logger.w("ScreenToolkit", "unknown pendingTool: " + root.pendingTool)
+                root.isRunning = false
+        }
+    }
 
     function copyToClipboard(text) {
         if (!text || text === "") return
@@ -550,48 +621,20 @@ Item {
     function runOcr(langStr) {
         if (root.isRunning) return
         root.pendingLangStr = (langStr && langStr !== "") ? langStr : "eng"
-        root.pendingTool = "ocr"
-        root.isRunning = true
-        closeThenLaunch(launchSlurp)
+        _runSlurpTool("ocr")
     }
 
-    function runQr() {
-        if (root.isRunning) return
-        root.pendingTool = "qr"
-        root.isRunning = true
-        closeThenLaunch(launchSlurp)
-    }
-
-    function runLens() {
-        if (root.isRunning) return
-        root.pendingTool = "lens"
-        root.isRunning = true
-        closeThenLaunch(launchSlurp)
-    }
-
-    function runAnnotate() {
-        if (root.isRunning) return
-        root.pendingTool = "annotate"
-        root.isRunning = true
-        closeThenLaunch(launchSlurp)
-    }
+    function runQr()       { _runSlurpTool("qr")      }
+    function runLens()     { _runSlurpTool("lens")     }
+    function runAnnotate() { _runSlurpTool("annotate") }
+    function runPin()      { _runSlurpTool("pin")      }
 
     function runPalette() {
-        if (root.isRunning) return
-        root.pendingTool = "palette"
-        root.isRunning = true
         if (pluginApi) {
             pluginApi.pluginSettings.paletteColors = []
             pluginApi.saveSettings()
         }
-        closeThenLaunch(launchSlurp)
-    }
-
-    function runPin() {
-        if (root.isRunning) return
-        root.pendingTool = "pin"
-        root.isRunning = true
-        closeThenLaunch(launchSlurp)
+        _runSlurpTool("palette")
     }
 
     function runMeasure() {
@@ -600,6 +643,16 @@ Item {
         if (pluginApi) pluginApi.withCurrentScreen(screen => pluginApi.closePanel(screen))
         measureOverlay.show()
     }
+
+    function runRecord(format, audioOut, audioIn) {
+        if (root.isRunning || recordOverlay.isRecording || recordOverlay.isConverting) return
+        root.pendingRecordFormat   = format   || "gif"
+        root.pendingRecordAudioOut = audioOut === true
+        root.pendingRecordAudioIn  = audioIn  === true
+        _runSlurpTool("record")
+    }
+
+    function runMirror() { mirrorOverlay.toggle() }
 
     function detectCapabilities() {
         root._detectedLangs = []
@@ -623,6 +676,8 @@ Item {
         function measure()      { root.runMeasure() }
         function pin()          { root.runPin() }
         function palette()      { root.runPalette() }
+        function record()       { root.runRecord("gif") }
+        function mirror()       { root.runMirror() }
         function toggle() {
             if (!pluginApi) return
             pluginApi.withCurrentScreen(screen => pluginApi.togglePanel(screen))

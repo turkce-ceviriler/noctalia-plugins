@@ -2,6 +2,7 @@ import QtQuick
 import Quickshell
 import qs.Widgets
 import qs.Commons
+import qs.Services.UI
 
 NIconButton {
     id: root
@@ -9,6 +10,7 @@ NIconButton {
     property var pluginApi: null
     icon: "crosshair"
     tooltipText: pluginApi?.tr("widget.tooltip") || "Screen Toolkit"
+    tooltipDirection: BarService.getTooltipDirection(screen?.name)
     colorBg: Style.capsuleColor
     colorBorder: "transparent"
     colorBorderHover: "transparent"

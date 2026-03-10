@@ -15,7 +15,9 @@
     "palette": "Palette",
     "measure": "Measure",
     "qr": "QR",
-    "lens": "Lens"
+    "lens": "Lens",
+    "record": "Record",
+    "mirror": "Mirror"
   },
   "messages": {
     "picker-cancelled": "Color picker cancelled.",
