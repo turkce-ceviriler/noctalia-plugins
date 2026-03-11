@@ -11,6 +11,22 @@ ColumnLayout {
 
     property var pluginApi: null
 
+		property bool valueTodoIntegration: pluginApi?.pluginSettings?.enableTodoIntegration ?? false
+		property bool valuePincardsEnabled: pluginApi?.pluginSettings?.pincardsEnabled ?? true
+		property bool valueNotecardsEnabled: pluginApi?.pluginSettings?.notecardsEnabled ?? true
+		property bool valueShowCloseButton: pluginApi?.pluginSettings?.showCloseButton ?? false
+		property var pendingCardColors: JSON.parse(JSON.stringify(defaultCardColors))
+		property var pendingCustomColors: {
+				"Text": { bg: "#555555", separator: "#000000", fg: "#e9e4f0" },
+				"Image": { bg: "#e0b7c9", separator: "#000000", fg: "#20161f" },
+				"Link": { bg: "#c7a1d8", separator: "#000000", fg: "#1a151f" },
+				"Code": { bg: "#a984c4", separator: "#000000", fg: "#f3edf7" },
+				"Color": { bg: "#a984c4", separator: "#000000", fg: "#f3edf7" },
+				"Emoji": { bg: "#e0b7c9", separator: "#000000", fg: "#20161f" },
+				"File": { bg: "#e9899d", separator: "#000000", fg: "#1e1418" }
+		}
+
+
     // ToDo integration
     property bool todoPluginAvailable: false
     property bool enableTodoIntegration: pluginApi?.pluginSettings?.enableTodoIntegration ?? false
@@ -115,6 +131,20 @@ ColumnLayout {
         if (pluginApi?.pluginSettings?.enableTodoIntegration !== undefined) {
             enableTodoIntegration = pluginApi.pluginSettings.enableTodoIntegration;
         }
+				if (pluginApi?.pluginSettings?.cardColors) {
+        try {
+            const loaded = JSON.parse(JSON.stringify(pluginApi.pluginSettings.cardColors));
+            cardColors = loaded;
+            pendingCardColors = JSON.parse(JSON.stringify(loaded));
+        } catch (e) {}
+				}
+				if (pluginApi?.pluginSettings?.customColors) {
+						try {
+								const loaded = JSON.parse(JSON.stringify(pluginApi.pluginSettings.customColors));
+								customColors = loaded;
+								pendingCustomColors = JSON.parse(JSON.stringify(loaded));
+						} catch (e) {}
+				}
     }
 
     // Helper to get actual color value
@@ -188,11 +218,8 @@ ColumnLayout {
             ? (pluginApi?.tr("settings.todo-description") || "Add clipboard items directly to your ToDo list")
             : (pluginApi?.tr("settings.todo-disabled") || "ToDo plugin is not installed or disabled")
         enabled: root.todoPluginAvailable
-        checked: root.enableTodoIntegration
-        onToggled: checked => {
-            root.enableTodoIntegration = checked;
-            root.saveSettings();
-        }
+				checked: root.valueTodoIntegration
+				onToggled: checked => { root.valueTodoIntegration = checked; }
     }
 
     NDivider {
@@ -211,13 +238,8 @@ ColumnLayout {
         Layout.fillWidth: true
         label: pluginApi?.tr("settings.pincards-enabled") || "Enable Pin Cards"
         description: pluginApi?.tr("settings.pincards-desc") || "Show pinned items panel and allow pinning clipboard items"
-        checked: pluginApi?.pluginSettings?.pincardsEnabled ?? true
-        onToggled: checked => {
-            if (pluginApi) {
-                pluginApi.pluginSettings.pincardsEnabled = checked;
-                pluginApi.saveSettings();
-            }
-        }
+				checked: root.valuePincardsEnabled
+				onToggled: checked => { root.valuePincardsEnabled = checked; }
     }
 
     // Pinned items count display
@@ -270,13 +292,8 @@ ColumnLayout {
         Layout.fillWidth: true
         label: pluginApi?.tr("settings.notecards-enabled") || "Enable NoteCards"
         description: pluginApi?.tr("settings.notecards-desc") || "Show notecards panel for quick notes and sticky notes"
-        checked: pluginApi?.pluginSettings?.notecardsEnabled ?? true
-        onToggled: checked => {
-            if (pluginApi) {
-                pluginApi.pluginSettings.notecardsEnabled = checked;
-                pluginApi.saveSettings();
-            }
-        }
+				checked: root.valueNotecardsEnabled
+				onToggled: checked => { root.valueNotecardsEnabled = checked; }
     }
 
     // Notes count display
@@ -313,15 +330,11 @@ ColumnLayout {
         icon: "trash"
         visible: pluginApi?.pluginSettings?.notecardsEnabled ?? true
         enabled: (pluginApi?.mainInstance?.noteCards?.length || 0) > 0
-        onClicked: {
-            if (pluginApi?.mainInstance) {
-                // Clear all notes
-                pluginApi.mainInstance.noteCards = [];
-                pluginApi.mainInstance.saveNoteCards();
-                pluginApi.mainInstance.noteCardsRevision++;
-                ToastService.showNotice(pluginApi?.tr("toast.notes-cleared") || "All notes cleared");
-            }
-        }
+				onClicked: {
+						if (pluginApi?.mainInstance) {
+								pluginApi.mainInstance.clearAllNoteCards();
+						}
+				}
     }
 
     NDivider {
@@ -333,15 +346,8 @@ ColumnLayout {
         Layout.fillWidth: true
         label: pluginApi?.tr("settings.show-close-button") || "Show Close Button"
         description: pluginApi?.tr("settings.show-close-button-desc") || "Display an X button at the top-right corner to close the panel"
-        checked: pluginApi?.pluginSettings?.showCloseButton ?? false
-        onToggled: checked => {
-            if (pluginApi) {
-                pluginApi.pluginSettings.showCloseButton = checked;
-                pluginApi.saveSettings();
-                // Update mainInstance property for immediate effect
-                pluginApi.mainInstance.showCloseButton = checked;
-            }
-        }
+				checked: root.valueShowCloseButton
+				onToggled: checked => { root.valueShowCloseButton = checked; }
     }
 
         }  // End General Tab
@@ -382,7 +388,7 @@ ColumnLayout {
             NText {
                 text: pluginApi?.tr("settings.preview") || "Preview"
                 font.bold: true
-                color: root.getPreviewFg()
+                color: Color.mOnSurface
             }
 
             // Preview card
@@ -481,14 +487,11 @@ ColumnLayout {
         description: pluginApi?.tr("settings.bg-color-desc") || "Card background color"
         model: root.colorOptions
         currentKey: root.cardColors[root.selectedCardType]?.bg || "mOutline"
-        onSelected: key => {
-            if (!root.cardColors[root.selectedCardType]) {
-                root.cardColors[root.selectedCardType] = {};
-            }
-            root.cardColors[root.selectedCardType].bg = key;
-            root.cardColorsChanged();
-            root.saveSettings();
-        }
+				onSelected: key => {
+						if (!root.pendingCardColors[root.selectedCardType]) root.pendingCardColors[root.selectedCardType] = {};
+						root.pendingCardColors[root.selectedCardType].bg = key;
+						root.cardColors = JSON.parse(JSON.stringify(root.pendingCardColors));
+				}
     }
 
     NColorPicker {
@@ -496,14 +499,11 @@ ColumnLayout {
         Layout.preferredWidth: Style.sliderWidth
         Layout.preferredHeight: Style.baseWidgetSize
         selectedColor: root.customColors[root.selectedCardType]?.bg || "#888888"
-        onColorSelected: color => {
-            if (!root.customColors[root.selectedCardType]) {
-                root.customColors[root.selectedCardType] = {};
-            }
-            root.customColors[root.selectedCardType].bg = color.toString();
-            root.customColorsChanged();
-            root.saveSettings();
-        }
+				onColorSelected: color => {
+						if (!root.pendingCustomColors[root.selectedCardType]) root.pendingCustomColors[root.selectedCardType] = {};
+						root.pendingCustomColors[root.selectedCardType].bg = color.toString();
+						root.customColors = JSON.parse(JSON.stringify(root.pendingCustomColors));
+				}
     }
 
     NComboBox {
@@ -512,14 +512,11 @@ ColumnLayout {
         description: pluginApi?.tr("settings.separator-color-desc") || "Line between header and content"
         model: root.colorOptions
         currentKey: root.cardColors[root.selectedCardType]?.separator || "mSurface"
-        onSelected: key => {
-            if (!root.cardColors[root.selectedCardType]) {
-                root.cardColors[root.selectedCardType] = {};
-            }
-            root.cardColors[root.selectedCardType].separator = key;
-            root.cardColorsChanged();
-            root.saveSettings();
-        }
+				onSelected: key => {
+						if (!root.pendingCardColors[root.selectedCardType]) root.pendingCardColors[root.selectedCardType] = {};
+						root.pendingCardColors[root.selectedCardType].separator = key;
+						root.cardColors = JSON.parse(JSON.stringify(root.pendingCardColors));
+				}
     }
 
     NColorPicker {
@@ -527,14 +524,11 @@ ColumnLayout {
         Layout.preferredWidth: Style.sliderWidth
         Layout.preferredHeight: Style.baseWidgetSize
         selectedColor: root.customColors[root.selectedCardType]?.separator || "#000000"
-        onColorSelected: color => {
-            if (!root.customColors[root.selectedCardType]) {
-                root.customColors[root.selectedCardType] = {};
-            }
-            root.customColors[root.selectedCardType].separator = color.toString();
-            root.customColorsChanged();
-            root.saveSettings();
-        }
+				onColorSelected: color => {
+						if (!root.pendingCustomColors[root.selectedCardType]) root.pendingCustomColors[root.selectedCardType] = {};
+						root.pendingCustomColors[root.selectedCardType].separator = color.toString();
+						root.customColors = JSON.parse(JSON.stringify(root.pendingCustomColors));
+				}
     }
 
     NComboBox {
@@ -543,14 +537,11 @@ ColumnLayout {
         description: pluginApi?.tr("settings.fg-color-desc") || "Title, icons and content text color"
         model: root.colorOptions
         currentKey: root.cardColors[root.selectedCardType]?.fg || "mOnSurface"
-        onSelected: key => {
-            if (!root.cardColors[root.selectedCardType]) {
-                root.cardColors[root.selectedCardType] = {};
-            }
-            root.cardColors[root.selectedCardType].fg = key;
-            root.cardColorsChanged();
-            root.saveSettings();
-        }
+				onSelected: key => {
+						if (!root.pendingCardColors[root.selectedCardType]) root.pendingCardColors[root.selectedCardType] = {};
+						root.pendingCardColors[root.selectedCardType].fg = key;
+						root.cardColors = JSON.parse(JSON.stringify(root.pendingCardColors));
+				}
     }
 
     NColorPicker {
@@ -558,14 +549,11 @@ ColumnLayout {
         Layout.preferredWidth: Style.sliderWidth
         Layout.preferredHeight: Style.baseWidgetSize
         selectedColor: root.customColors[root.selectedCardType]?.fg || "#e9e4f0"
-        onColorSelected: color => {
-            if (!root.customColors[root.selectedCardType]) {
-                root.customColors[root.selectedCardType] = {};
-            }
-            root.customColors[root.selectedCardType].fg = color.toString();
-            root.customColorsChanged();
-            root.saveSettings();
-        }
+				onColorSelected: color => {
+						if (!root.pendingCustomColors[root.selectedCardType]) root.pendingCustomColors[root.selectedCardType] = {};
+						root.pendingCustomColors[root.selectedCardType].fg = color.toString();
+						root.customColors = JSON.parse(JSON.stringify(root.pendingCustomColors));
+				}
     }
 
     // Reset button
@@ -573,34 +561,42 @@ ColumnLayout {
         Layout.alignment: Qt.AlignRight
         text: pluginApi?.tr("settings.reset-defaults") || "Reset to Defaults"
         icon: "refresh"
-        onClicked: {
-            root.cardColors = JSON.parse(JSON.stringify(root.defaultCardColors));
-            root.customColors = {
-                "Text": { bg: "#555555", separator: "#000000", fg: "#e9e4f0" },
-                "Image": { bg: "#e0b7c9", separator: "#000000", fg: "#20161f" },
-                "Link": { bg: "#c7a1d8", separator: "#000000", fg: "#1a151f" },
-                "Code": { bg: "#a984c4", separator: "#000000", fg: "#f3edf7" },
-                "Color": { bg: "#a984c4", separator: "#000000", fg: "#f3edf7" },
-                "Emoji": { bg: "#e0b7c9", separator: "#000000", fg: "#20161f" },
-                "File": { bg: "#e9899d", separator: "#000000", fg: "#1e1418" }
-            };
-            root.saveSettings();
-        }
+				onClicked: {
+						const defaults = JSON.parse(JSON.stringify(root.defaultCardColors));
+						const defaultCustom = {
+								"Text": { bg: "#555555", separator: "#000000", fg: "#e9e4f0" },
+								"Image": { bg: "#e0b7c9", separator: "#000000", fg: "#20161f" },
+								"Link": { bg: "#c7a1d8", separator: "#000000", fg: "#1a151f" },
+								"Code": { bg: "#a984c4", separator: "#000000", fg: "#f3edf7" },
+								"Color": { bg: "#a984c4", separator: "#000000", fg: "#f3edf7" },
+								"Emoji": { bg: "#e0b7c9", separator: "#000000", fg: "#20161f" },
+								"File": { bg: "#e9899d", separator: "#000000", fg: "#1e1418" }
+						};
+						root.pendingCardColors = defaults;
+						root.pendingCustomColors = defaultCustom;
+						root.cardColors = JSON.parse(JSON.stringify(defaults));
+						root.customColors = JSON.parse(JSON.stringify(defaultCustom));
+				}
     }
 
         }  // End Appearance Tab
 
     }  // End NTabView
 
-    function saveSettings() {
-        if (!pluginApi) {
-            return;
-        }
+	function saveSettings() {
+			if (!pluginApi) return;
 
-        pluginApi.pluginSettings.cardColors = JSON.parse(JSON.stringify(root.cardColors));
-        pluginApi.pluginSettings.customColors = JSON.parse(JSON.stringify(root.customColors));
-        pluginApi.pluginSettings.enableTodoIntegration = root.enableTodoIntegration;
+			pluginApi.pluginSettings.enableTodoIntegration = root.valueTodoIntegration;
+			pluginApi.pluginSettings.pincardsEnabled = root.valuePincardsEnabled;
+			pluginApi.pluginSettings.notecardsEnabled = root.valueNotecardsEnabled;
+			pluginApi.pluginSettings.showCloseButton = root.valueShowCloseButton;
+			pluginApi.pluginSettings.cardColors = JSON.parse(JSON.stringify(root.pendingCardColors));
+			pluginApi.pluginSettings.customColors = JSON.parse(JSON.stringify(root.pendingCustomColors));
 
-        pluginApi.saveSettings();
-    }
+			if (pluginApi.mainInstance) {
+					pluginApi.mainInstance.showCloseButton = root.valueShowCloseButton;
+			}
+
+			pluginApi.saveSettings();
+	}
 }

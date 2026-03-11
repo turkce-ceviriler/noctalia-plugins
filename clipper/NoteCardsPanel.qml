@@ -22,17 +22,17 @@ Item {
     }
 
     // Background MouseArea - ALWAYS closes panel on click
-    MouseArea {
-        anchors.fill: parent
-        z: -1  // Behind everything
+		MouseArea {
+				anchors.fill: parent
+				z: -1
 
-        onClicked: {
-            // Close panel when clicking on background
-            if (root.pluginApi && root.screen) {
-                root.pluginApi.closePanel(root.screen);
-            }
-        }
-    }
+				onClicked: {
+						const closeButtonOn = root.pluginApi?.pluginSettings?.showCloseButton ?? false;
+						if (!closeButtonOn && root.pluginApi && root.screen) {
+								root.pluginApi.closePanel(root.screen);
+						}
+				}
+		}
 
     // Empty state UI (shown when no notes)
     Item {

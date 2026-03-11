@@ -15,13 +15,11 @@ Item {
     // Plugin API (injected by PluginPanelSlot)
     property var pluginApi: null
 
-    // Screen context - store reference for child components
+		// Screen context - store reference for child components
     property var currentScreen: screen
 
     // Track currently open ToDo context menu
     property var activeContextMenu: null
-
-
 
     // Refresh clipboard list and load notecards when panel becomes visible
     // Save notecards when panel is closed
@@ -38,23 +36,13 @@ Item {
         }
     }
 
-
-
     // SmartPanel properties (required for panel behavior)
     readonly property var geometryPlaceholder: mainContainer
-    readonly property bool allowAttach: false
+    readonly property bool allowAttach: true
 
     // Panel dimensions - fullscreen transparent container
-    property int contentPreferredHeight: screen?.height || 0
-    property int contentPreferredWidth: screen?.width || 0
-
-    // Panel positioning - cover full screen
-    property bool panelAnchorBottom: true
-    property bool panelAnchorTop: true
-    property bool panelAnchorLeft: true
-    property bool panelAnchorRight: true
-    property bool panelAnchorHorizontalCenter: false
-    property bool panelAnchorVerticalCenter: false
+    property int contentPreferredHeight: 1000 * Style.uiScaleRatio
+    property int contentPreferredWidth: 1400 * Style.uiScaleRatio
 
     // Keyboard navigation
     property int selectedIndex: 0
@@ -132,19 +120,38 @@ Item {
         }
     }
 
-    Keys.onDigit1Pressed: filterType = "Text"
-    Keys.onDigit2Pressed: filterType = "Image"
-    Keys.onDigit3Pressed: filterType = "Color"
-    Keys.onDigit4Pressed: filterType = "Link"
-    Keys.onDigit5Pressed: filterType = "Code"
-    Keys.onDigit6Pressed: filterType = "Emoji"
-    Keys.onDigit7Pressed: filterType = "File"
-    Keys.onDigit0Pressed: filterType = ""
+		Keys.onDigit1Pressed: filterType = ""
+    Keys.onDigit2Pressed: filterType = "Text"
+    Keys.onDigit3Pressed: filterType = "Image"
+    Keys.onDigit4Pressed: filterType = "Color"
+    Keys.onDigit5Pressed: filterType = "Link"
+    Keys.onDigit6Pressed: filterType = "Code"
+    Keys.onDigit7Pressed: filterType = "Emoji"
+    Keys.onDigit8Pressed: filterType = "File"
 
     // Main container - transparent fullscreen
     Item {
         id: mainContainer
         anchors.fill: parent
+
+				NIconButton {
+					visible: pluginApi?.mainInstance?.showCloseButton ?? false
+					anchors.top: parent.top
+					anchors.right: parent.right
+					anchors.margins: Style.marginM
+					z: 10
+					icon: "x"
+					tooltipText: pluginApi?.tr("panel.close") || "Close"
+					colorBg: (typeof Color !== "undefined") ? Color.mSurfaceVariant : "#444444"
+					colorBgHover: (typeof Color !== "undefined") ? Color.mError : "#CC0000"
+					colorFg: (typeof Color !== "undefined") ? Color.mOnSurface : "#FFFFFF"
+					colorFgHover: (typeof Color !== "undefined") ? Color.mOnError : "#FFFFFF"
+					onClicked: {
+							if (root.pluginApi) {
+									root.pluginApi.closePanel(screen);
+							}
+					}
+				}
 
         // CLIPBOARD PANEL - Bottom, full width (horizontal)
         Rectangle {
@@ -158,10 +165,11 @@ Item {
             opacity: 1.0  // Override global panel opacity
 
             Rectangle {
-                anchors.bottom: parent.bottom
-                width: parent.width
-                height: parent.radius
-                color: parent.color
+							topLeftRadius: Style.radiusM
+							topRightRadius: Style.radiusM
+							bottomLeftRadius: 0
+							bottomRightRadius: 0
+							opacity: 1.0
             }
 
             ColumnLayout {
@@ -196,22 +204,6 @@ Item {
                     onClicked: {
                         if (root.pluginApi) {
                             BarService.openPluginSettings(screen, root.pluginApi.manifest);
-                        }
-                    }
-                }
-
-                NIconButton {
-                    visible: pluginApi?.mainInstance?.showCloseButton ?? false
-                    icon: "x"
-                    tooltipText: pluginApi?.tr("panel.close") || "Close"
-                    Layout.alignment: Qt.AlignVCenter
-                    colorBg: (typeof Color !== "undefined") ? Color.mSurfaceVariant : "#444444"
-                    colorBgHover: (typeof Color !== "undefined") ? Color.mError : "#CC0000"
-                    colorFg: (typeof Color !== "undefined") ? Color.mOnSurface : "#FFFFFF"
-                    colorFgHover: (typeof Color !== "undefined") ? Color.mOnError : "#FFFFFF"
-                    onClicked: {
-                        if (root.pluginApi) {
-                            root.pluginApi.closePanel(screen);
                         }
                     }
                 }
@@ -280,14 +272,14 @@ Item {
                         } else if (event.key >= Qt.Key_0 && event.key <= Qt.Key_9) {
                             // Number keys for filter types
                             const filterMap = {
-                                [Qt.Key_0]: "",
-                                [Qt.Key_1]: "Text",
-                                [Qt.Key_2]: "Image",
-                                [Qt.Key_3]: "Color",
-                                [Qt.Key_4]: "Link",
-                                [Qt.Key_5]: "Code",
-                                [Qt.Key_6]: "Emoji",
-                                [Qt.Key_7]: "File"
+                                [Qt.Key_1]: "",
+                                [Qt.Key_2]: "Text",
+                                [Qt.Key_3]: "Image",
+                                [Qt.Key_4]: "Color",
+                                [Qt.Key_5]: "Link",
+                                [Qt.Key_6]: "Code",
+                                [Qt.Key_7]: "Emoji",
+                                [Qt.Key_8]: "File"
                             };
                             if (filterMap.hasOwnProperty(event.key)) {
                                 root.filterType = filterMap[event.key];
@@ -432,6 +424,15 @@ Item {
                 currentIndex: root.selectedIndex
                 focus: false
 
+								MouseArea {
+										anchors.fill: parent
+										acceptedButtons: Qt.NoButton
+										onWheel: wheel => {
+												listView.flick(wheel.angleDelta.y * 12, 0)
+												wheel.accepted = true;
+										}
+								}
+
                 model: root.filteredItems
 
                 Keys.onUpPressed: {
@@ -493,14 +494,14 @@ Item {
                 Keys.onPressed: event => {
                     if (event.key >= Qt.Key_0 && event.key <= Qt.Key_9) {
                         const filterMap = {
-                            [Qt.Key_0]: "",
-                            [Qt.Key_1]: "Text",
-                            [Qt.Key_2]: "Image",
-                            [Qt.Key_3]: "Color",
-                            [Qt.Key_4]: "Link",
-                            [Qt.Key_5]: "Code",
-                            [Qt.Key_6]: "Emoji",
-                            [Qt.Key_7]: "File"
+                            [Qt.Key_1]: "",
+                            [Qt.Key_2]: "Text",
+                            [Qt.Key_3]: "Image",
+                            [Qt.Key_4]: "Color",
+                            [Qt.Key_5]: "Link",
+                            [Qt.Key_6]: "Code",
+                            [Qt.Key_7]: "Emoji",
+                            [Qt.Key_8]: "File"
                         };
                         if (filterMap.hasOwnProperty(event.key)) {
                             root.filterType = filterMap[event.key];
@@ -659,6 +660,31 @@ Item {
                 }
             }
         }  // End pinnedPanel
+
+				// Vertical separator between pinned and notecards
+				Rectangle {
+						visible: pinnedPanel.visible && noteCardsPanel.visible
+						anchors.left: pinnedPanel.right
+						anchors.top: parent.top
+						anchors.bottom: clipboardPanel.top
+						anchors.bottomMargin: Style.marginM
+						width: 1
+						color: "transparent"
+
+						Column {
+								anchors.centerIn: parent
+								spacing: 10
+								Repeater {
+										model: 27
+										Rectangle {
+												width: 2
+												height: 8
+												color: (typeof Color !== "undefined") ? Color.mOutline : "#555555"
+												opacity: 0.7
+										}
+								}
+						}
+				}
 
         // NOTECARDS PANEL - Middle space (between pinned and clipboard)
         Item {

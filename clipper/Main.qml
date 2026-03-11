@@ -453,23 +453,35 @@ Item {
     }
 
     // Function to delete a note card
-    function deleteNoteCard(noteId) {
-        // Find note to get filename before deleting
-        const note = root.noteCards.find(n => n.id === noteId);
-        if (note) {
-            const filename = getNoteFilename(note);
-            const filePath = root.noteCardsDir + "/" + filename;
+		function deleteNoteCard(noteId) {
+				const note = root.noteCards.find(n => n.id === noteId);
+				if (note) {
+						const filename = getNoteFilename(note);
+						const filePath = root.noteCardsDir + "/" + filename;
+						Quickshell.execDetached(["rm", "-f", filePath]);
 
-            // Delete file
-            Quickshell.execDetached(["rm", filePath]);
-        }
+						// Delete all exported .txt files
+						const exportedFiles = note.exportedFiles || [];
+						for (let i = 0; i < exportedFiles.length; i++) {
+								const exportedPath = Quickshell.env("HOME") + "/Documents/" + exportedFiles[i];
+								Quickshell.execDetached(["rm", "-f", exportedPath]);
+						}
+				}
 
-        // Remove from array
-        root.noteCards = root.noteCards.filter(n => n.id !== noteId);
-        root.noteCardsRevision++;
+				root.noteCards = root.noteCards.filter(n => n.id !== noteId);
+				root.noteCardsRevision++;
 
-        ToastService.showNotice(pluginApi?.tr("toast.note-deleted") || "Note deleted");
-    }
+				ToastService.showNotice(pluginApi?.tr("toast.note-deleted") || "Note deleted");
+		}
+
+		// Function to clear all note cards and delete files from disk
+		function clearAllNoteCards() {
+				Quickshell.execDetached(["sh", "-c", `rm -f "${root.noteCardsDir}"/*.json`]);
+				Quickshell.execDetached(["sh", "-c", `rm -f "${Quickshell.env("HOME")}/Documents"/notecard_*.txt`]);
+				root.noteCards = [];
+				root.noteCardsRevision++;
+				ToastService.showNotice(pluginApi?.tr("toast.notes-cleared") || "All notes cleared");
+		}
 
     // Function to export scratchpad note to .txt file
     function exportNoteCard(noteId) {
@@ -479,8 +491,14 @@ Item {
             return;
         }
 
-        const timestamp = new Date().toISOString().replace(/[:.]/g, "-");
-        const fileName = "note_" + timestamp + ".txt";
+				const now = new Date();
+				const timestamp = now.getFullYear().toString().slice(-2) +
+						String(now.getMonth() + 1).padStart(2, '0') +
+						String(now.getDate()).padStart(2, '0') + "-" +
+						String(now.getHours()).padStart(2, '0') +
+						String(now.getMinutes()).padStart(2, '0') +
+						String(now.getSeconds()).padStart(2, '0');
+				const fileName = "notecard_" + timestamp + ".txt";
         const filePath = Quickshell.env("HOME") + "/Documents/" + fileName;
 
         // Use base64 encoding to safely pass content through shell
@@ -489,6 +507,10 @@ Item {
             "sh", "-c",
             `echo "${base64}" | base64 -d > "${filePath}"`
         ]);
+
+				// Store exported filename - append to list so all exports are tracked
+				const existingExports = note.exportedFiles || [];
+				root.updateNoteCard(noteId, { exportedFiles: [...existingExports, fileName] });
 
         ToastService.showNotice((pluginApi?.tr("toast.note-exported") || "Note exported to ~/Documents/{fileName}").replace("{fileName}", fileName));
     }
@@ -1130,9 +1152,7 @@ Item {
         console.log("Main.qml Component.onCompleted - pluginApi:", pluginApi);
         if (pluginApi) {
             console.log("Main.qml: pluginSettings in onCompleted:", pluginApi.pluginSettings);
-            closeOnBackgroundClick = pluginApi.pluginSettings?.closeOnBackgroundClick ?? true;
             showCloseButton = pluginApi.pluginSettings?.showCloseButton ?? false;
-            console.log("Main.qml: Set closeOnBg:", closeOnBackgroundClick, "showClose:", showCloseButton);
         }
 
         // Create empty pinned.json if it doesn't exist
