@@ -25,15 +25,13 @@ ColumnLayout {
   readonly property bool showHorizontal: parallaxDirection === "horizontal" || parallaxDirection === "both"
   readonly property bool showVertical: parallaxDirection === "vertical" || parallaxDirection === "both"
 
-  function tr(key) { return pluginApi?.tr(key) || key; }
-
   spacing: Style.marginL
 
   // ── Wallpaper Zoom ──
 
   NValueSlider {
-    label: root.tr("settings.zoom.label")
-    description: root.tr("settings.zoom.desc")
+    label: pluginApi.tr("settings.zoom.label")
+    description: pluginApi.tr("settings.zoom.desc")
     text: root.zoomAmount.toFixed(2) + "x"
     from: 1.00
     to: 2.00
@@ -53,14 +51,14 @@ ColumnLayout {
 
   NComboBox {
     Layout.fillWidth: true
-    label: root.tr("settings.direction.label")
-    description: root.tr("settings.direction.desc")
+    label: pluginApi.tr("settings.direction.label")
+    description: pluginApi.tr("settings.direction.desc")
     defaultValue: root.defaults.parallaxDirection
     model: [
-      { "key": "none", "name": root.tr("settings.direction.none") },
-      { "key": "horizontal", "name": root.tr("settings.direction.horizontal") },
-      { "key": "vertical", "name": root.tr("settings.direction.vertical") },
-      { "key": "both", "name": root.tr("settings.direction.both") }
+      { "key": "none", "name": pluginApi.tr("settings.direction.none") },
+      { "key": "horizontal", "name": pluginApi.tr("settings.direction.horizontal") },
+      { "key": "vertical", "name": pluginApi.tr("settings.direction.vertical") },
+      { "key": "both", "name": pluginApi.tr("settings.direction.both") }
     ]
     currentKey: root.parallaxDirection
     onSelected: function(key) {
@@ -75,12 +73,12 @@ ColumnLayout {
 
   NLabel {
     visible: root.showHorizontal
-    label: root.tr("settings.horizontal.title")
+    label: pluginApi.tr("settings.horizontal.title")
   }
 
   NValueSlider {
     visible: root.showHorizontal
-    label: root.tr("settings.horizontal.amount")
+    label: pluginApi.tr("settings.horizontal.amount")
     text: Math.round(root.hParallaxAmount) + "px"
     from: 1
     to: 200
@@ -96,7 +94,7 @@ ColumnLayout {
 
   NValueSlider {
     visible: root.showHorizontal
-    label: root.tr("settings.horizontal.duration")
+    label: pluginApi.tr("settings.horizontal.duration")
     text: Math.round(root.hParallaxDuration) + "ms"
     from: 50
     to: 2000
@@ -116,12 +114,12 @@ ColumnLayout {
 
   NLabel {
     visible: root.showVertical
-    label: root.tr("settings.vertical.title")
+    label: pluginApi.tr("settings.vertical.title")
   }
 
   NValueSlider {
     visible: root.showVertical
-    label: root.tr("settings.vertical.amount")
+    label: pluginApi.tr("settings.vertical.amount")
     text: Math.round(root.vParallaxAmount) + "px"
     from: 1
     to: 200
@@ -137,7 +135,7 @@ ColumnLayout {
 
   NValueSlider {
     visible: root.showVertical
-    label: root.tr("settings.vertical.duration")
+    label: pluginApi.tr("settings.vertical.duration")
     text: Math.round(root.vParallaxDuration) + "ms"
     from: 50
     to: 2000
@@ -156,8 +154,8 @@ ColumnLayout {
   NDivider { Layout.fillWidth: true }
 
   NToggle {
-    label: root.tr("settings.invert.label")
-    description: root.tr("settings.invert.desc")
+    label: pluginApi.tr("settings.invert.label")
+    description: pluginApi.tr("settings.invert.desc")
     defaultValue: root.defaults.invertDirection
     checked: root.invertDirection
     onToggled: checked => {
@@ -171,8 +169,8 @@ ColumnLayout {
   NDivider { Layout.fillWidth: true }
 
   NToggle {
-    label: root.tr("settings.autoZoom.label")
-    description: root.tr("settings.autoZoom.desc")
+    label: pluginApi.tr("settings.autoZoom.label")
+    description: pluginApi.tr("settings.autoZoom.desc")
     defaultValue: root.defaults.autoZoom
     checked: root.autoZoom
     onToggled: checked => {
@@ -187,23 +185,23 @@ ColumnLayout {
 
   NComboBox {
     Layout.fillWidth: true
-    label: root.tr("settings.easing.label")
-    description: root.tr("settings.easing.desc")
+    label: pluginApi.tr("settings.easing.label")
+    description: pluginApi.tr("settings.easing.desc")
     defaultValue: root.defaults.parallaxEasing
     model: [
-      { "key": "Linear", "name": root.tr("settings.easing.linear") },
-      { "key": "InQuad", "name": root.tr("settings.easing.inQuad") },
-      { "key": "OutQuad", "name": root.tr("settings.easing.outQuad") },
-      { "key": "InOutQuad", "name": root.tr("settings.easing.inOutQuad") },
-      { "key": "InCubic", "name": root.tr("settings.easing.inCubic") },
-      { "key": "OutCubic", "name": root.tr("settings.easing.outCubic") },
-      { "key": "InOutCubic", "name": root.tr("settings.easing.inOutCubic") },
-      { "key": "InQuart", "name": root.tr("settings.easing.inQuart") },
-      { "key": "OutQuart", "name": root.tr("settings.easing.outQuart") },
-      { "key": "InOutQuart", "name": root.tr("settings.easing.inOutQuart") },
-      { "key": "InExpo", "name": root.tr("settings.easing.inExpo") },
-      { "key": "OutExpo", "name": root.tr("settings.easing.outExpo") },
-      { "key": "InOutExpo", "name": root.tr("settings.easing.inOutExpo") }
+      { "key": "Linear", "name": pluginApi.tr("settings.easing.linear") },
+      { "key": "InQuad", "name": pluginApi.tr("settings.easing.inQuad") },
+      { "key": "OutQuad", "name": pluginApi.tr("settings.easing.outQuad") },
+      { "key": "InOutQuad", "name": pluginApi.tr("settings.easing.inOutQuad") },
+      { "key": "InCubic", "name": pluginApi.tr("settings.easing.inCubic") },
+      { "key": "OutCubic", "name": pluginApi.tr("settings.easing.outCubic") },
+      { "key": "InOutCubic", "name": pluginApi.tr("settings.easing.inOutCubic") },
+      { "key": "InQuart", "name": pluginApi.tr("settings.easing.inQuart") },
+      { "key": "OutQuart", "name": pluginApi.tr("settings.easing.outQuart") },
+      { "key": "InOutQuart", "name": pluginApi.tr("settings.easing.inOutQuart") },
+      { "key": "InExpo", "name": pluginApi.tr("settings.easing.inExpo") },
+      { "key": "OutExpo", "name": pluginApi.tr("settings.easing.outExpo") },
+      { "key": "InOutExpo", "name": pluginApi.tr("settings.easing.inOutExpo") }
     ]
     currentKey: root.parallaxEasing
     onSelected: function(key) {
