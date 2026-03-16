@@ -7,10 +7,40 @@ import Quickshell
 import Quickshell.Io
 import Quickshell.Wayland
 
+import qs.Commons
+import qs.Widgets
+import qs.Services.UI
+
+
+
 PanelWindow {
   id: root
 
   property var pluginApi: null
+
+  // ---------- Configuration ----------
+
+  property var cfg: pluginApi?.pluginSettings || ({})
+  property var defaults: pluginApi?.manifest?.metadata?.defaultSettings || ({})
+
+  property string cache_dir: (cfg.cache_dir || defaults.cache_dir).replace(/^~/, Quickshell.env("HOME"))
+  property int card_height: cfg.card_height || defaults.card_height
+  property int card_spacing: cfg.card_spacing || defaults.card_spacing
+  property int card_strip_width: cfg.card_strip_width || defaults.card_strip_width
+  property int card_radius: cfg.card_radius || defaults.card_radius
+  property int cards_shown: cfg.cards_shown || defaults.cards_shown
+  property var filter_images: cfg.filter_images || defaults.filter_images
+  property var filter_videos: cfg.filter_videos || defaults.filter_videos
+  property var shear_factor: cfg.shear_factor || defaults.shear_factor
+  property var top_bar_height: cfg.top_bar_height || defaults.top_bar_height
+  property var top_bar_radius: cfg.top_bar_radius || defaults.top_bar_radius
+  property string wallpaper_dir: (cfg.wallpaper_dir || defaults.wallpaper_dir).replace(/^~/, Quickshell.env("HOME"))
+
+  // TODO: colors von noctalia nutzen
+  // property color test: Color.mPrimary || "red"
+  // property var test2: Style.marginXS
+
+  // TODO: init filter als config
 
   property bool livePreview: false
   property string fontFamily: "Monaspace Krypton"
@@ -19,18 +49,18 @@ PanelWindow {
   property bool loading: true
   property int filteredCount: filteredItems.length
   property int pendingProcesses: 0
-  property string filter: "images"
+  property string selected_filter: "images"
   property string loadingMessage
   property var filteredItems: []
 
   function isVideo(fileName) {
     var ext = fileName.substring(fileName.lastIndexOf(".") + 1).toLowerCase();
-    return ["mp4", "mkv", "webm", "avi", "mov"].indexOf(ext) !== -1;
+    return filter_videos.indexOf(ext) !== -1;
   }
 
   function isImage(fileName) {
     var ext = fileName.substring(fileName.lastIndexOf(".") + 1).toLowerCase();
-    return ["png", "jpg", "jpeg"].indexOf(ext) !== -1;
+    return filter_images.indexOf(ext) !== -1;
   }
 
   function rebuildFilteredItems() {
@@ -39,7 +69,7 @@ PanelWindow {
       var fn = folderModel.get(i, "fileName");
       var fp = folderModel.get(i, "filePath");
 
-      if (filter === "all" || (filter === "images" && isImage(fn)) || (filter === "videos" && isVideo(fn)))
+      if (selected_filter === "all" || (selected_filter === "images" && isImage(fn)) || (selected_filter === "videos" && isVideo(fn)))
         items.push({
           "fileName": fn,
           "filePath": fp
@@ -68,7 +98,7 @@ PanelWindow {
 
   function createThumbnails() {
     var proc = processComponent.createObject(null, {
-      "command": ["mkdir", "-p", config.cache_dir]
+      "command": ["mkdir", "-p", cache_dir]
     });
     proc.running = true;
 
@@ -77,7 +107,7 @@ PanelWindow {
           var filePath = folderModel.get(idx, "filePath");
           var fileName = folderModel.get(idx, "fileName");
           var thumbName = thumbnailName(fileName);
-          var thumbnail = config.cache_dir + "/" + thumbName;
+          var thumbnail = cache_dir + "/" + thumbName;
 
           var cmd;
           if (isVideo(fileName))
@@ -141,29 +171,9 @@ PanelWindow {
   exclusiveZone: 0
   implicitHeight: screen ? screen.height : 1080
   implicitWidth: screen ? screen.width : 1920
-  onFilterChanged: rebuildFilteredItems()
+  onSelected_filterChanged: rebuildFilteredItems()
   WlrLayershell.keyboardFocus: WlrKeyboardFocus.Exclusive
   WlrLayershell.layer: WlrLayer.Overlay
-
-  FileView {
-    path: "/home/toni/.config/noctalia/plugins/wallcards/config.json"
-
-    JsonAdapter {
-      id: config
-
-      property string cache_dir
-      property int card_height
-      property int card_spacing
-      property int card_strip_width
-      property int card_radius
-      property int cards_shown
-      property var file_filter
-      property var shear_factor
-      property var top_bar_height
-      property var top_bar_radius
-      property string wallpaper_dir
-    }
-  }
 
   FileView {
     path: Quickshell.env("HOME") + "/.config/noctalia/colors.json"
@@ -197,9 +207,9 @@ PanelWindow {
   FolderListModel {
     id: folderModel
 
-    folder: Qt.resolvedUrl("file://" + config.wallpaper_dir)
+    folder: Qt.resolvedUrl("file://" + wallpaper_dir)
     showDirs: false
-    nameFilters: config.file_filter || []
+    nameFilters: (filter_images || []).concat(filter_videos || []).map(function(ext) { return "*." + ext; })
     sortField: FolderListModel.Name
     onStatusChanged: {
       if (status === FolderListModel.Ready) {
@@ -316,19 +326,19 @@ PanelWindow {
     id: contentArea
 
     anchors.horizontalCenter: parent.horizontalCenter
-    y: (parent.height - config.card_height) / 2
+    y: (parent.height - card_height) / 2
     width: parent.width
-    height: config.card_height
+    height: card_height
 
     // ── Top bar ──
     Rectangle {
       id: infoBar
 
-      property int sideCount: Math.floor(config.cards_shown / 2) - 1
+      property int sideCount: Math.floor(cards_shown / 2) - 1
       property real centerWidth: contentArea.width / 3
-      property real centerX: centerWidth + config.card_height * config.shear_factor * -0.1
-      property real stripWidth: config.card_strip_width
-      property real stripGap: config.card_spacing
+      property real centerX: centerWidth + card_height * shear_factor * -0.1
+      property real stripWidth: card_strip_width
+      property real stripGap: card_spacing
       property real leftEdge: centerX - stripGap - sideCount * stripWidth - (sideCount - 1) * stripGap
       property real rightEdge: centerX + centerWidth + stripGap + (sideCount - 1) * (stripWidth + stripGap) + stripWidth
 
@@ -351,8 +361,8 @@ PanelWindow {
       opacity: .90
       x: leftEdge + entryOffset
       width: rightEdge - leftEdge
-      height: config.top_bar_height
-      radius: config.top_bar_radius || 10
+      height: top_bar_height
+      radius: top_bar_radius || 10
 
       // ── Left ──
       Row {
@@ -407,7 +417,7 @@ PanelWindow {
 
           Rectangle {
             required property var modelData
-            property bool active: root.filter === modelData.key
+            property bool active: root.selected_filter === modelData.key
             property color ac: active ? colors.mOnSurface : colors.mOnSurfaceVariant
 
             width: fc.width + 14
@@ -455,7 +465,7 @@ PanelWindow {
             MouseArea {
               anchors.fill: parent
               cursorShape: Qt.PointingHandCursor
-              onClicked: root.filter = modelData.key
+              onClicked: root.selected_filter = modelData.key
             }
             Behavior on color {
               ColorAnimation {
@@ -629,7 +639,7 @@ PanelWindow {
       }
 
       transform: Shear {
-        xFactor: config.shear_factor || -0.25
+        xFactor: shear_factor
       }
     }
 
@@ -638,13 +648,13 @@ PanelWindow {
       id: cardStack
 
       property int currentIndex: 0
-      property int visibleCount: config.cards_shown
+      property int visibleCount: cards_shown
       property int halfVisible: Math.floor(visibleCount / 2)
 
-      property real cardHeight: config.card_height / 1.25 - config.top_bar_height
+      property real cardHeight: card_height / 1.25 - top_bar_height
       property real centerWidth: contentArea.width / 3
-      property real stripWidth: config.card_strip_width
-      property real stripGap: config.card_spacing
+      property real stripWidth: card_strip_width
+      property real stripGap: card_spacing
       property real centerX: width / 2 - centerWidth / 2
 
       property real runningIndex: 0
@@ -726,11 +736,11 @@ PanelWindow {
         else if (event.key === Qt.Key_P)
           root.livePreview = !root.livePreview;
         else if (event.key === Qt.Key_A)
-          root.filter = "all";
+          root.selected_filter = "all";
         else if (event.key === Qt.Key_I)
-          root.filter = "images";
+          root.selected_filter = "images";
         else if (event.key === Qt.Key_V)
-          root.filter = "videos";
+          root.selected_filter = "videos";
         else if (event.key === Qt.Key_R)
           cardStack.randomJump();
         else if (event.key === Qt.Key_Return || event.key === Qt.Key_Space) {
@@ -762,7 +772,7 @@ PanelWindow {
           property bool isVideoFile: root.isVideo(currentFileName)
           property bool isCenter: offset === 0
 
-          property string targetSource: root.filteredCount > 0 ? `file://${config.cache_dir}/${root.thumbnailName(currentFileName)}` : ""
+          property string targetSource: root.filteredCount > 0 ? `file://${cache_dir}/${root.thumbnailName(currentFileName)}` : ""
 
           onTargetSourceChanged: {
             if (img.source.toString() !== "" && img.source.toString() !== targetSource) {
@@ -836,7 +846,7 @@ PanelWindow {
               id: mask
 
               anchors.fill: parent
-              radius: config.card_radius
+              radius: card_radius
               visible: false
             }
 
@@ -918,7 +928,7 @@ PanelWindow {
                     maskSource: Rectangle {
                       width: videoContainer.width
                       height: videoContainer.height
-                      radius: config.card_radius
+                      radius: card_radius
                     }
                   }
                 }
@@ -931,7 +941,7 @@ PanelWindow {
               property int trackedModel: cardDelegate.modelIndex
 
               anchors.fill: parent
-              radius: config.card_radius
+              radius: card_radius
               color: "transparent"
               border.width: isCenter ? 2 : 1
               border.color: isCenter ? colors.mOutline : colors.mSurface
@@ -1000,7 +1010,7 @@ PanelWindow {
             }
 
             transform: Shear {
-              xFactor: config.shear_factor || -0.25
+              xFactor: shear_factor
             }
           }
 
@@ -1033,7 +1043,7 @@ PanelWindow {
             }
 
             transform: Shear {
-              xFactor: config.shear_factor || -0.25
+              xFactor: shear_factor
             }
           }
 
