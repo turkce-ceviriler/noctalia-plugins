@@ -17,6 +17,7 @@ ColumnLayout {
   property string editPlayerName: cfg.playerName || defaults.playerName || "musicfox"
   property int editUpdateInterval: cfg.updateInterval || defaults.updateInterval || 200
   property int editWidth: cfg.width || defaults.width || 300
+  property bool editHideWhenInactive: cfg.hideWhenInactive ?? defaults.hideWhenInactive ?? true
 
   Component.onCompleted: {
     Logger.i("MprisLyric", "Settings UI loaded")
@@ -31,6 +32,7 @@ ColumnLayout {
     pluginApi.pluginSettings.playerName = root.editPlayerName
     pluginApi.pluginSettings.updateInterval = root.editUpdateInterval
     pluginApi.pluginSettings.width = root.editWidth
+    pluginApi.pluginSettings.hideWhenInactive = root.editHideWhenInactive
 
     pluginApi.saveSettings()
     Logger.i("MprisLyric", "Settings saved successfully")
@@ -50,6 +52,13 @@ ColumnLayout {
     Layout.fillWidth: true
     Layout.topMargin: Style.marginS
     Layout.bottomMargin: Style.marginS
+  }
+
+  NToggle {
+    label: pluginApi?.tr("settings.hide-when-inactive") || "Hide When Inactive"
+    description: pluginApi?.tr("settings.hide-when-inactive-desc") || "Hide the widget when playback is paused or stopped"
+    checked: root.editHideWhenInactive
+    onToggled: checked => root.editHideWhenInactive = checked
   }
 
   // Update interval

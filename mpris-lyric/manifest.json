@@ -22,6 +22,7 @@
   "metadata": {
     "defaultSettings": {
       "playerName": "musicfox",
+      "hideWhenInactive": false,
       "updateInterval": 200,
       "width": 300
     }

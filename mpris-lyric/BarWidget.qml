@@ -20,7 +20,9 @@ Item {
   readonly property var mainInstance: pluginApi?.mainInstance
   readonly property bool isActive: mainInstance && mainInstance.isPlaying
   readonly property bool hasContent: mainInstance && (mainInstance.currentLyric !== "" || mainInstance.trackTitle !== "")
-  readonly property bool isVisible: isActive
+  readonly property bool hideWhenInactive: pluginApi?.pluginSettings?.hideWhenInactive ??
+      pluginApi?.manifest?.metadata?.defaultSettings?.hideWhenInactive ?? true
+  readonly property bool isVisible: isActive || !hideWhenInactive
 
   readonly property int widgetWidth: pluginApi?.pluginSettings?.width ||
       pluginApi?.manifest?.metadata?.defaultSettings?.width || 300
@@ -58,7 +60,6 @@ Item {
   implicitWidth: contentWidth
   implicitHeight: contentHeight
   visible: isVisible
-  opacity: isVisible ? 1.0 : 0.0
 
   Rectangle {
     id: visualCapsule
