@@ -1,5 +1,4 @@
-import "."
-import "components"
+import "src"
 
 import qs.Commons
 import qs.Services.UI
@@ -11,8 +10,6 @@ import Quickshell.Wayland
 import Qt.labs.folderlistmodel
 import Qt5Compat.GraphicalEffects
 import QtMultimedia
-
-// TODO: after thumbnail creation, one card change needed to show image/videos
 
 PanelWindow {
   id: root
@@ -137,31 +134,19 @@ PanelWindow {
   }
 
   function applyCard(filePath, quit) {
-    root.loading = true;
-    root.loadingMessage = "Applying wallpaper…";
-    root.pendingProcesses++;
-
     var fileName = filePath.substring(filePath.lastIndexOf("/") + 1);
-    var proc;
 
     if (utils.isVideo(fileName))
-      proc = processComponent.createObject(null, {
-        "command": ["bash", "-c", "pkill -x mpvpaper 2>/dev/null || true; sleep 0.2; for m in $(hyprctl monitors | awk '/^Monitor /{print $2}'); do setsid -f mpvpaper -p -f -o '--loop-file=inf' \"$m\" '" + filePath + "' >/dev/null 2>&1 & done"]
-      });
+      console.log("Not implemented yet. Maybye use video wallpaper plugin?");
     else
-      proc = processComponent.createObject(null, {
-        "command": ["qs", "-c", "noctalia-shell", "ipc", "call", "wallpaper", "set", filePath, "all"]
-      });
-
-    proc.exited.connect(function () {
-      root.pendingProcesses--;
-      root.loading = root.pendingProcesses != 0;
-
-      if (quit)
-        root.destroy();
-    });
-
-    proc.running = true;
+    // proc = processComponent.createObject(null, {
+    //   "command": ["bash", "-c", "pkill -x mpvpaper 2>/dev/null || true; sleep 0.2; for m in $(hyprctl monitors | awk '/^Monitor /{print $2}'); do setsid -f mpvpaper -p -f -o '--loop-file=inf' \"$m\" '" + filePath + "' >/dev/null 2>&1 & done"]
+    // });
+    {
+      var screen = Settings.data.wallpaper.setWallpaperOnAllMonitors ? undefined : targetScreen.name;
+      WallpaperService.changeWallpaper(filePath, screen);
+      WallpaperService.applyFavoriteTheme(path, screen);
+    }
   }
 
   FolderListModel {
@@ -298,9 +283,8 @@ PanelWindow {
     height: contentHeight2
 
     // ── Top bar ──
-
     Rectangle {
-      id: infoBar
+      id: topBar
 
       property int sideCount: Math.floor(cardsShown / 2) - 1
       property real centerWidth: contentArea.width / 3
@@ -320,7 +304,7 @@ PanelWindow {
         NumberAnimation {
           duration: root.animationDuration
           easing.type: Easing.OutBack
-          easing.overshoot: 1
+          easing.overshoot: 1.0
         }
       }
 
@@ -332,275 +316,94 @@ PanelWindow {
       height: topBarHeight
       radius: topBarRadius || 10
 
-      // ── Left ──
-      Row {
+      // Left
+      Text {
         anchors.left: parent.left
         anchors.leftMargin: 14
         anchors.verticalCenter: parent.verticalCenter
-        spacing: 10
-
-        Row {
-          anchors.verticalCenter: parent.verticalCenter
-          spacing: 5
-
-          Text {
-            anchors.verticalCenter: parent.verticalCenter
-            text: `${cardStack.currentIndex + 1} / ${root.filteredCount}`
-            color: Color.mPrimary
-            font.family: Settings.data.ui.fontDefault
-            font.pixelSize: 13
-            font.letterSpacing: 0.5
-          }
+        text: `${cardStack.currentIndex + 1} / ${root.filteredCount}`
+        color: Color.mPrimary
+        font {
+          family: Settings.data.ui.fontDefault
+          pixelSize: 13
+          letterSpacing: 0.5
         }
       }
 
-      // ── Center ──
+      // Center
       Row {
-        id: filterRow
         anchors.centerIn: parent
         spacing: 3
-        z: 1
 
         Repeater {
           model: [
             {
-              "key": "all",
-              "label": "All",
-              "icon": "\ue5c3",
-              "hotkey": "A"
+              key: "all",
+              label: "All",
+              icon: "\ue5c3",
+              hotkey: "A"
             },
             {
-              "key": "images",
-              "label": "Images",
-              "icon": "\ue3f4",
-              "hotkey": "I"
+              key: "images",
+              label: "Images",
+              icon: "\ue3f4",
+              hotkey: "I"
             },
             {
-              "key": "videos",
-              "label": "Videos",
-              "icon": "\ue04b",
-              "hotkey": "V"
+              key: "videos",
+              label: "Videos",
+              icon: "\ue04b",
+              hotkey: "V"
             }
           ]
 
-          Rectangle {
+          ToolbarButton {
             required property var modelData
-            property bool active: root.selectedFilter === modelData.key
-            property color ac: active ? Color.mOnSurface : Color.mOnSurfaceVariant
-
-            width: fc.width + 14
-            height: 24
-            radius: 6
-            color: active ? Qt.alpha(ac, 0.15) : "transparent"
-            border.width: 1
-            border.color: active ? Qt.alpha(ac, 0.5) : Qt.alpha(Color.mOutline, 0.3)
-
-            Row {
-              id: fc
-              anchors.centerIn: parent
-              spacing: 4
-              Text {
-                anchors.verticalCenter: parent.verticalCenter
-                text: modelData.icon
-                color: ac
-                font.family: "Material Symbols Outlined"
-                font.pixelSize: 12
-              }
-              Text {
-                anchors.verticalCenter: parent.verticalCenter
-                text: modelData.label
-                color: ac
-                font.family: Settings.data.ui.fontDefault
-                font.pixelSize: 10
-              }
-              Rectangle {
-                width: 14
-                height: 14
-                radius: 3
-                anchors.verticalCenter: parent.verticalCenter
-                color: Qt.alpha(ac, active ? 0.2 : 0.06)
-                Text {
-                  anchors.centerIn: parent
-                  text: modelData.hotkey
-                  color: Qt.alpha(ac, active ? 1 : 0.7)
-                  font.family: Settings.data.ui.fontDefault
-                  font.pixelSize: 8
-                  font.bold: true
-                }
-              }
-            }
-
-            MouseArea {
-              anchors.fill: parent
-              cursorShape: Qt.PointingHandCursor
-              onClicked: root.selectedFilter = modelData.key
-            }
-            Behavior on color {
-              ColorAnimation {
-                duration: 200
-              }
-            }
-            Behavior on border.color {
-              ColorAnimation {
-                duration: 200
-              }
-            }
+            icon: modelData.icon
+            label: modelData.label
+            hotkey: modelData.hotkey
+            active: root.selectedFilter === modelData.key
+            onClicked: root.selectedFilter = modelData.key
           }
         }
       }
 
-      // ── Right ──
+      // Right
       Row {
         anchors.right: parent.right
         anchors.rightMargin: 12
         anchors.verticalCenter: parent.verticalCenter
         spacing: 4
-        z: 1
 
-        // Random button
-        Rectangle {
-          width: rndContent.width + 14
-          height: 24
-          radius: 6
-          color: Qt.alpha(Color.mOnSurface, 0.06)
-          border.width: 1
-          border.color: Qt.alpha(Color.mOutline, 0.3)
-
-          Row {
-            id: rndContent
-            anchors.centerIn: parent
-            spacing: 4
-
-            Text {
-              anchors.verticalCenter: parent.verticalCenter
-              text: "\ue043"
-              color: Color.mOnSurfaceVariant
-              font.family: "Material Symbols Outlined"
-              font.pixelSize: 13
-            }
-
-            Text {
-              anchors.verticalCenter: parent.verticalCenter
-              text: "Shuffle"
-              color: Color.mOnSurfaceVariant
-              font.family: Settings.data.ui.fontDefault
-              font.pixelSize: 10
-            }
-
-            Rectangle {
-              width: 14
-              height: 14
-              radius: 3
-              anchors.verticalCenter: parent.verticalCenter
-              color: Qt.alpha(Color.mOnSurface, 0.06)
-              Text {
-                anchors.centerIn: parent
-                text: "R"
-                color: Qt.alpha(Color.mOnSurfaceVariant, 0.7)
-                font.family: Settings.data.ui.fontDefault
-                font.pixelSize: 8
-                font.bold: true
-              }
-            }
-          }
-
-          MouseArea {
-            anchors.fill: parent
-            cursorShape: Qt.PointingHandCursor
-            onClicked: cardStack.randomJump()
-          }
+        ToolbarButton {
+          icon: "\ue043"
+          label: "Shuffle"
+          hotkey: "R"
+          onClicked: cardStack.randomJump()
         }
 
-        Rectangle {
-          width: 1
-          height: 14
-          anchors.verticalCenter: parent.verticalCenter
-          color: Qt.alpha(Color.mOutline, 0.3)
-        }
+        ToolbarButton {
+          id: liveBtn
+          active: root.livePreview
+          accentColor: root.livePreview ? Color.mTertiary : Color.mOnSurfaceVariant
+          hotkey: "P"
+          onClicked: root.livePreview = !root.livePreview
 
-        // Live preview toggle
-        Rectangle {
-          id: previewToggle
-
-          width: previewContent.width + 14
-          height: 24
-          radius: 6
-          color: root.livePreview ? Qt.alpha(Color.mTertiary, 0.15) : Qt.alpha(Color.mOnSurface, 0.06)
-          border.width: 1
-          border.color: root.livePreview ? Qt.alpha(Color.mTertiary, 0.5) : Qt.alpha(Color.mOutline, 0.3)
-
-          Row {
-            id: previewContent
-            anchors.centerIn: parent
-            spacing: 5
-
-            Rectangle {
-              width: 6
-              height: 6
-              radius: 3
-              anchors.verticalCenter: parent.verticalCenter
-              color: root.livePreview ? Color.mTertiary : Qt.alpha(Color.mOnSurfaceVariant, 0.4)
-
-              SequentialAnimation on opacity {
-                running: root.livePreview
-                loops: Animation.Infinite
-                NumberAnimation {
-                  to: 0.4
-                  duration: 800
-                  easing.type: Easing.InOutSine
-                }
-                NumberAnimation {
-                  to: 1.0
-                  duration: 800
-                  easing.type: Easing.InOutSine
-                }
+          Component {
+            Row {
+              spacing: 5
+              PulsingDot {
+                pulsing: root.livePreview
               }
-            }
-
-            Text {
-              anchors.verticalCenter: parent.verticalCenter
-              text: "Live"
-              color: root.livePreview ? Color.mTertiary : Color.mOnSurfaceVariant
-              font.family: Settings.data.ui.fontDefault
-              font.pixelSize: 10
-              Behavior on color {
-                ColorAnimation {
-                  duration: 200
-                }
-              }
-            }
-
-            Rectangle {
-              width: 14
-              height: 14
-              radius: 3
-              anchors.verticalCenter: parent.verticalCenter
-              color: root.livePreview ? Qt.alpha(Color.mTertiary, 0.2) : Qt.alpha(Color.mOnSurface, 0.06)
               Text {
-                anchors.centerIn: parent
-                text: "P"
-                color: root.livePreview ? Color.mTertiary : Qt.alpha(Color.mOnSurfaceVariant, 0.7)
-                font.family: Settings.data.ui.fontDefault
-                font.pixelSize: 8
-                font.bold: true
+                anchors.verticalCenter: parent.verticalCenter
+                text: "Live"
+                color: liveBtn.accentColor
+                font {
+                  family: Settings.data.ui.fontDefault
+                  pixelSize: 10
+                }
               }
-            }
-          }
-
-          MouseArea {
-            anchors.fill: parent
-            cursorShape: Qt.PointingHandCursor
-            onClicked: root.livePreview = !root.livePreview
-          }
-
-          Behavior on color {
-            ColorAnimation {
-              duration: 200
-            }
-          }
-          Behavior on border.color {
-            ColorAnimation {
-              duration: 200
             }
           }
         }
@@ -617,7 +420,7 @@ PanelWindow {
       id: cardStack
 
       anchors.fill: parent
-      anchors.top: infoBar.bottom
+      anchors.top: topBar.bottom
       anchors.topMargin: 50
 
       filteredCount: root.filteredCount
@@ -869,38 +672,33 @@ PanelWindow {
             }
           }
 
-          // ── Badges ──
-
-          FileBadge {
+          Badge {
             anchors.top: parent.top
             anchors.right: parent.right
             anchors.topMargin: 8
             anchors.rightMargin: 8
-            z: 10
             visible: cardDelegate.currentFileName !== ""
-            fileName: cardDelegate.currentFileName
-            isVideo: cardDelegate.isVideoFile
+            icon: cardDelegate.isVideoFile ? "videocam" : "insert_drive_file"
+            text: cardDelegate.currentFileName.split('.').pop().toUpperCase()
           }
 
-          FileLabel {
+          Badge {
             anchors.top: parent.top
             anchors.left: parent.left
             anchors.topMargin: 8
             anchors.leftMargin: 8
-            z: 10
             visible: isCenter
-            fileName: cardDelegate.currentFileName
-            isVideo: cardDelegate.isVideoFile
-            shearFactor: root.shearFactor
+            text: cardDelegate.currentFileName.substring(0, cardDelegate.currentFileName.lastIndexOf('.'))
           }
 
-          VideoNotice {
-              anchors.top: parent.bottom
-              anchors.horizontalCenter: parent.horizontalCenter
-              anchors.topMargin: 10
-              z: 10
-              visible: isCenter && cardDelegate.isVideoFile
-              shearFactor: root.shearFactor
+          Badge {
+            anchors.top: parent.bottom
+            anchors.horizontalCenter: parent.horizontalCenter
+            anchors.topMargin: 10
+            textColor: Color.mError
+            visible: isCenter && cardDelegate.isVideoFile
+            icon: "stop_circle"
+            text: "Video wallpaper are comming soon."
           }
 
           MouseArea {
@@ -926,6 +724,10 @@ PanelWindow {
           easing.type: Easing.OutBack
           easing.overshoot: 1
         }
+      }
+
+      transform: Shear {
+        xFactor: shearFactor
       }
     }
   }
