@@ -80,7 +80,7 @@ ColumnLayout {
   }
 
   function applyDownloadDirectory() {
-    var target = String(editDownloadDirectory || "").trim();
+    var target = (editDownloadDirectory || "").trim();
     if (target.length === 0) {
       return;
     }
@@ -88,7 +88,7 @@ ColumnLayout {
   }
 
   function applyCacheLimit() {
-    var target = Math.max(0, Math.floor(Number(editDownloadCacheMaxMb || 0)));
+    var target = Math.max(0, Math.floor(editDownloadCacheMaxMb || 0));
     editDownloadCacheMaxMb = target;
     pluginApi?.mainInstance?.setDownloadCacheMaxMb(target);
   }

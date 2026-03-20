@@ -1100,7 +1100,7 @@ Item {
 
   function copyEntry(entry) {
     return {
-      "id": String(entry?.id || ""),
+      "id": entry?.id ?? "",
       "title": String(entry?.title || entry?.name || "Untitled"),
       "url": String(entry?.url || ""),
       "uploader": String(entry?.uploader || ""),
