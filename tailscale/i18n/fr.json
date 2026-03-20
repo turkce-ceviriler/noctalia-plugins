@@ -34,6 +34,7 @@
     "not-installed": "Tailscale n'est pas installé",
     "settings": "Paramètres",
     "copy-ip": "Copier l'IP",
+    "copy-fqdn": "Copier le FQDN",
     "ssh": "SSH vers l'hôte",
     "ping": "Ping l'hôte"
   },
@@ -43,6 +44,9 @@
     "disconnected": "Tailscale déconnecté",
     "ip-copied": {
       "title": "IP copiée"
+    },
+    "fqdn-copied": {
+      "title": "FQDN copié"
     },
     "terminal-not-configured": {
       "title": "Terminal non configuré",

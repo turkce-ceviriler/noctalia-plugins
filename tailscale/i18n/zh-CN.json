@@ -34,6 +34,7 @@
     "not-installed": "未安装Tailscale",
     "settings": "设置",
     "copy-ip": "复制IP",
+    "copy-fqdn": "复制FQDN",
     "ssh": "SSH到主机",
     "ping": "Ping主机"
   },
@@ -43,6 +44,9 @@
     "disconnected": "Tailscale已断开",
     "ip-copied": {
       "title": "IP已复制"
+    },
+    "fqdn-copied": {
+      "title": "FQDN已复制"
     },
     "terminal-not-configured": {
       "title": "终端未配置",

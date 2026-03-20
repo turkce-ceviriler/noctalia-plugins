@@ -34,6 +34,7 @@
     "not-installed": "Tailscale är inte installerad",
     "settings": "Inställningar",
     "copy-ip": "Kopiera IP",
+    "copy-fqdn": "Kopiera FQDN",
     "ssh": "SSH till värd",
     "ping": "Pinga värd"
   },
@@ -43,6 +44,9 @@
     "disconnected": "Tailscale frånkopplad",
     "ip-copied": {
       "title": "IP kopierad"
+    },
+    "fqdn-copied": {
+      "title": "FQDN kopierad"
     },
     "terminal-not-configured": {
       "title": "Terminal ej konfigurerad",

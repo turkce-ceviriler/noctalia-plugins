@@ -35,6 +35,11 @@ Item {
     return mainInstance?.filterIPv4(ips) || []
   }
 
+  function normalizeFqdn(fqdn) {
+    if (!fqdn) return ""
+    return fqdn.endsWith(".") ? fqdn.slice(0, -1) : fqdn
+  }
+
   function getOSIcon(os) {
     if (!os) return "circle-check"
     switch (os.toLowerCase()) {
@@ -81,6 +86,20 @@ Item {
     }
   }
 
+  function copySelectedPeerFqdn() {
+    if (selectedPeer) {
+      var fqdn = normalizeFqdn(selectedPeer.DNSName)
+      if (fqdn) {
+        copyToClipboard(fqdn)
+        ToastService.showNotice(
+          pluginApi?.tr("toast.fqdn-copied.title"),
+          fqdn,
+          "clipboard"
+        )
+      }
+    }
+  }
+
   function sshToSelectedPeer() {
     if (!requireTerminal()) return
     if (selectedPeer) {
@@ -107,6 +126,9 @@ Item {
       case "copy-ip":
         copySelectedPeerIp()
         break
+      case "copy-fqdn":
+        copySelectedPeerFqdn()
+        break
       case "ssh":
         sshToSelectedPeer()
         break
@@ -123,6 +145,12 @@ Item {
         label: pluginApi?.tr("context.copy-ip"), 
         action: "copy-ip", 
         icon: "clipboard" 
+      },
+      {
+        label: pluginApi?.tr("context.copy-fqdn"),
+        action: "copy-fqdn",
+        icon: "world",
+        enabled: root.normalizeFqdn(root.selectedPeer?.DNSName) !== ""
       },
       { 
         label: pluginApi?.tr("context.ssh"), 
@@ -141,6 +169,9 @@ Item {
       switch (action) {
         case "copy-ip":
           root.copySelectedPeerIp()
+          break
+        case "copy-fqdn":
+          root.copySelectedPeerFqdn()
           break
         case "ssh":
           root.sshToSelectedPeer()
