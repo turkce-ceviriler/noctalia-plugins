@@ -582,7 +582,7 @@
     {
       "id": "netbird",
       "name": "NetBird",
-      "version": "1.0.0",
+      "version": "1.0.1",
       "official": false,
       "author": "Cleboost",
       "description": "Show NetBird VPN status in the menu bar.",
@@ -594,7 +594,7 @@
         "Network",
         "Panel"
       ],
-      "lastUpdated": "2026-02-13T15:08:22+01:00"
+      "lastUpdated": "2026-03-20T23:10:16+01:00"
     },
     {
       "id": "network-indicator",
