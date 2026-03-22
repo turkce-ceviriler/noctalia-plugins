@@ -24,7 +24,7 @@ Item {
   property real runningIndex: 0
   property real animationIndex: 0
 
-  signal applyRequested(string filePath, bool quit)
+  signal applyRequested(string filePath)
   signal quitRequested
   signal filterChanged(string filter)
   signal livePreviewToggled
@@ -81,7 +81,7 @@ Item {
     currentIndex = newIdx;
 
     if (livePreview)
-      applyRequested(root.getFilePath(currentIndex), false);
+      applyRequested(root.getFilePath(currentIndex));
   }
 
   focus: true
@@ -111,7 +111,7 @@ Item {
     else if (event.key === Qt.Key_R || event.key === Qt.Key_Up)
       randomJump();
     else if (event.key === Qt.Key_Return || event.key === Qt.Key_Space || event.key === Qt.Key_Down) {
-      applyRequested(root.getFilePath(currentIndex), true);
+      applyRequested(root.getFilePath(currentIndex));
       quitRequested();
     }
     else if (event.key === Qt.Key_Escape || event.key === Qt.Key_Q)

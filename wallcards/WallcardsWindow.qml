@@ -135,7 +135,7 @@ PanelWindow {
     }
   }
 
-  function applyCard(filePath, quit) {
+  function applyCard(filePath) {
     var fileName = filePath.substring(filePath.lastIndexOf("/") + 1);
 
     if (utils.isVideo(fileName))
@@ -430,7 +430,7 @@ PanelWindow {
       shearFactor: root.shearFactor
       livePreview: root.livePreview
 
-      onApplyRequested: (filePath, quit) => root.applyCard(filePath, quit)
+      onApplyRequested: (filePath) => root.applyCard(filePath)
       onQuitRequested: root.destroy()
       onFilterChanged: filter => root.selectedFilter = filter
       onLivePreviewToggled: root.livePreview = !root.livePreview
@@ -714,7 +714,7 @@ PanelWindow {
             cursorShape: isCenter ? Qt.PointingHandCursor : Qt.ArrowCursor
             onClicked: {
               if (isCenter)
-                applyCard(root.getFilePath(cardDelegate.modelIndex), true);
+                applyCard(root.getFilePath(cardDelegate.modelIndex));
             }
             onWheel: function (wheel) {
               if (wheel.angleDelta.y > 0)
