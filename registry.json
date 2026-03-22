@@ -418,7 +418,7 @@
     {
       "id": "kde-connect",
       "name": "KDE Connect",
-      "version": "1.1.0",
+      "version": "1.2.0",
       "official": false,
       "author": "WerWolv",
       "description": "A Plugin integrating your mobile devices into a panel using KDEConnect",
@@ -431,7 +431,7 @@
         "Utility",
         "System"
       ],
-      "lastUpdated": "2026-03-10T21:23:53+01:00"
+      "lastUpdated": "2026-03-21T20:15:22+01:00"
     },
     {
       "id": "keybind-cheatsheet",
@@ -669,7 +669,7 @@
     {
       "id": "niri-auto-tile",
       "name": "Niri Auto-Tile",
-      "version": "1.2.0",
+      "version": "1.2.1",
       "official": false,
       "author": "pir0c0pter0",
       "description": "Automatically redistributes niri column widths evenly when windows open or close",
@@ -682,7 +682,7 @@
         "System",
         "Niri"
       ],
-      "lastUpdated": "2026-03-04T12:34:01-05:00"
+      "lastUpdated": "2026-03-21T20:51:43+01:00"
     },
     {
       "id": "niri-overview-launcher",
@@ -736,7 +736,7 @@
     {
       "id": "nvim-session-provider",
       "name": "Neovim Session Provider",
-      "version": "1.0.1",
+      "version": "1.0.2",
       "official": false,
       "author": "Krendil",
       "description": "Open Neovim Sessions",
@@ -747,7 +747,7 @@
         "Launcher",
         "Development"
       ],
-      "lastUpdated": "2026-03-05T13:10:48+10:00"
+      "lastUpdated": "2026-03-21T21:19:00+01:00"
     },
     {
       "id": "obs-control",
@@ -928,7 +928,7 @@
     {
       "id": "screen-toolkit",
       "name": "Screen Toolkit",
-      "version": "1.0.0",
+      "version": "1.0.1",
       "official": false,
       "author": "ycf-anon",
       "description": "A set of screen tools: color picker, annotate, record, pin, OCR, QR scanner, palette, measure, and webcam mirror.",
@@ -941,7 +941,7 @@
         "Utility",
         "System"
       ],
-      "lastUpdated": "2026-03-14T23:39:24+01:00"
+      "lastUpdated": "2026-03-21T02:21:08+01:00"
     },
     {
       "id": "screenshot",
@@ -1140,20 +1140,20 @@
     {
       "id": "valent-connect",
       "name": "Valent Connect",
-      "version": "1.1.0",
+      "version": "1.2.0",
       "official": false,
       "author": "Suyash",
       "description": "A plugin integrating your mobile devices into a panel using Valent",
       "repository": "https://github.com/noctalia-dev/noctalia-plugins",
       "minNoctaliaVersion": "4.6.7",
-      "license": "MIT",
+      "license": "GPLv2",
       "tags": [
         "Bar",
         "Panel",
         "Utility",
         "System"
       ],
-      "lastUpdated": "2026-03-19T04:00:40+05:30"
+      "lastUpdated": "2026-03-21T18:45:06+05:30"
     },
     {
       "id": "video-wallpaper",
@@ -1236,6 +1236,24 @@
         "Productivity"
       ],
       "lastUpdated": "2026-02-05T11:19:10-05:00"
+    },
+    {
+      "id": "workspace-overview",
+      "name": "Workspace Overview for Hyprland",
+      "version": "1.0.0",
+      "official": false,
+      "author": "doughbran",
+      "description": "Workspace overview with live window previews and wallpaper backgrounds for Hyprland.",
+      "repository": "https://github.com/noctalia-dev/noctalia-plugins",
+      "minNoctaliaVersion": "3.6.0",
+      "license": "MIT",
+      "tags": [
+        "Hyprland",
+        "Bar",
+        "Panel",
+        "Utility"
+      ],
+      "lastUpdated": "2026-03-21T15:00:15-03:00"
     },
     {
       "id": "world-clock",
