@@ -21,7 +21,6 @@ NIconButton {
   tooltipText: pluginApi?.tr("widget.tooltip")
   tooltipDirection: BarService.getTooltipDirection(screen?.name)
   baseSize: Style.getCapsuleHeightForScreen(screen?.name)
-  applyUiScale: false
   customRadius: Style.radiusL
   colorBg: Style.capsuleColor
   colorFg: Color.resolveColorKey(iconColorKey)
