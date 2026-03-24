@@ -29,6 +29,10 @@ jobs:
           # Get all the qml file changes and remove all line starting with a "-"
           diff_changes=$(gh pr diff "$PR_NUMBER" | awk '/^diff --git.*\.qml /{found=1} /^diff --git/{if(!/\.qml /) found=0} found{print}' | grep -v "^-")
 
+          if [ -z "$diff_changes" ] || [ "$diff_changes" = "" ]; then
+            exit 0
+          fi
+
           comment_body=$(printf -- '# Automatic Code Quality Review\n')
 
           issues=0
