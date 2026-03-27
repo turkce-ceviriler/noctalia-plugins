@@ -45,6 +45,11 @@ ColumnLayout {
     pluginApi?.manifest?.metadata?.defaultSettings?.terminalCommand ||
     ""
 
+  property string editSshUsername:
+    pluginApi?.pluginSettings?.sshUsername ||
+    pluginApi?.manifest?.metadata?.defaultSettings?.sshUsername ||
+    ""
+
   property int editPingCount:
     pluginApi?.pluginSettings?.pingCount ||
     pluginApi?.manifest?.metadata?.defaultSettings?.pingCount ||
@@ -185,6 +190,15 @@ ColumnLayout {
     onTextChanged: root.editTerminalCommand = text
   }
 
+  NTextInput {
+    Layout.fillWidth: true
+    label: pluginApi?.tr("settings.ssh-username")
+    description: pluginApi?.tr("settings.ssh-username-desc")
+    placeholderText: pluginApi?.tr("settings.ssh-username-placeholder")
+    text: root.editSshUsername
+    onTextChanged: root.editSshUsername = text
+  }
+
   NLabel {
     label: pluginApi?.tr("settings.ping-count")
     description: pluginApi?.tr("settings.ping-count-desc") + " (" + root.editPingCount + ")"
@@ -239,6 +253,7 @@ ColumnLayout {
     pluginApi.pluginSettings.hideDisconnected = root.editHideDisconnected
     pluginApi.pluginSettings.hideMullvadExitNodes = root.editHideMullvadExitNodes
     pluginApi.pluginSettings.terminalCommand = root.editTerminalCommand
+    pluginApi.pluginSettings.sshUsername = root.editSshUsername
     pluginApi.pluginSettings.pingCount = root.editPingCount
     pluginApi.pluginSettings.defaultPeerAction = root.editDefaultPeerAction
 

@@ -105,7 +105,8 @@ Item {
     if (selectedPeer) {
       var ips = filterIPv4(selectedPeer.TailscaleIPs)
       if (ips.length > 0) {
-        Quickshell.execDetached([root.terminalCommand, "-e", "ssh", ips[0]])
+        var target = root.sshUsername.trim() !== "" ? root.sshUsername.trim() + "@" + ips[0] : ips[0]
+        Quickshell.execDetached([root.terminalCommand, "-e", "ssh", target])
       }
     }
   }
@@ -204,6 +205,11 @@ Item {
   readonly property string terminalCommand:
     pluginApi?.pluginSettings?.terminalCommand ||
     pluginApi?.manifest?.metadata?.defaultSettings?.terminalCommand ||
+    ""
+
+  readonly property string sshUsername:
+    pluginApi?.pluginSettings?.sshUsername ||
+    pluginApi?.manifest?.metadata?.defaultSettings?.sshUsername ||
     ""
 
   readonly property int pingCount:
