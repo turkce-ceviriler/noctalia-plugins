@@ -28,7 +28,8 @@
       "paletteColors": [],
       "installedLangs": ["eng"],
       "transAvailable": false,
-      "selectedOcrLang": "eng"
+      "selectedOcrLang": "eng",
+      "detectedRecorder": ""
     }
   }
 }
