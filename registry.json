@@ -1037,7 +1037,7 @@
     {
       "id": "simple-notes",
       "name": "Simple Notes",
-      "version": "1.0.3",
+      "version": "1.0.4",
       "official": false,
       "author": "fusuyfusuy",
       "description": "A simple note taking plugin for Noctalia Shell.",
@@ -1049,7 +1049,7 @@
         "Panel",
         "Productivity"
       ],
-      "lastUpdated": "2026-01-26T23:59:29-05:00"
+      "lastUpdated": "2026-03-29T11:07:35-04:00"
     },
     {
       "id": "special-workspaces",
