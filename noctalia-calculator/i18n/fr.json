@@ -12,7 +12,7 @@
     "subtitle": "Calcul rapide dans la barre"
   },
   "settings": {
-    "about": "A propos",
+    "about": "À propos",
     "show-bar": "Afficher la valeur dans la barre",
     "show-bar-desc": "Affiche la valeur actuelle a cote de l'icone de la calculatrice",
     "precision": "Precision decimale: {value}",
