@@ -18,30 +18,63 @@ Item {
 
   property string selectedSource: ""
   property string selectedDestination: ""
+  readonly property var screenModel: Quickshell.screens.map(screen => ({ key: screen.name, name: screen.name }))
   readonly property bool sameSelection: selectedSource && selectedDestination && selectedSource === selectedDestination
-  readonly property var sourceModel: Quickshell.screens.filter(screen => screen.name !== selectedDestination).map(screen => ({ key: screen.name, name: screen.name }))
-  readonly property var destinationModel: Quickshell.screens.filter(screen => screen.name !== selectedSource).map(screen => ({ key: screen.name, name: screen.name }))
-  readonly property bool hasEnoughMonitors: Quickshell.screens.length >= 2
+  readonly property bool hasEnoughMonitors: screenModel.length >= 2
   readonly property bool controlsLocked: !hasEnoughMonitors
 
   anchors.fill: parent
 
+  function hasScreen(name) {
+    return screenModel.some(screen => screen.key === name);
+  }
+
+  function firstScreenName() {
+    return screenModel.length > 0 ? screenModel[0].key : "";
+  }
+
+  function firstAlternateScreenName(excludedName) {
+    for (let i = 0; i < screenModel.length; i++) {
+      const screen = screenModel[i];
+      if (screen.key !== excludedName) {
+        return screen.key;
+      }
+    }
+
+    return firstScreenName();
+  }
+
+  function syncSelections() {
+    if (screenModel.length === 0) {
+      selectedSource = "";
+      selectedDestination = "";
+      return;
+    }
+
+    if (!hasScreen(selectedSource)) {
+      selectedSource = firstScreenName();
+    }
+
+    if (!hasEnoughMonitors) {
+      selectedDestination = firstScreenName();
+      return;
+    }
+
+    if (!hasScreen(selectedDestination) || selectedDestination === selectedSource) {
+      selectedDestination = firstAlternateScreenName(selectedSource);
+    }
+  }
+
   Component.onCompleted: {
-    if (Quickshell.screens.length > 0) {
-      selectedSource = Quickshell.screens[0].name;
-      selectedDestination = Quickshell.screens.length > 1 ? Quickshell.screens[1].name : Quickshell.screens[0].name;
-    }
+    syncSelections();
   }
+
   onVisibleChanged: {
-    if (visible && Quickshell.screens.length > 0) {
-      if (!selectedSource || !Quickshell.screens.some(screen => screen.name === selectedSource)) {
-        selectedSource = Quickshell.screens[0].name;
-      }
-      if (!selectedDestination || !Quickshell.screens.some(screen => screen.name === selectedDestination) || selectedDestination === selectedSource) {
-        selectedDestination = Quickshell.screens.length > 1 ? Quickshell.screens[1].name : Quickshell.screens[0].name;
-      }
+    if (visible) {
+      syncSelections();
     }
   }
+  onScreenModelChanged: syncSelections()
 
   function startMirror() {
     if (!selectedSource || !selectedDestination || selectedSource === selectedDestination) {
@@ -53,21 +86,6 @@ Item {
   function stopMirror() {
     mainInstance?.stopMirror();
   }
-
-  function ensureDifferentSelection() {
-    if (!sameSelection && Quickshell.screens.length >= 2) return;
-    for (let i = 0; i < Quickshell.screens.length; i++) {
-      const screen = Quickshell.screens[i];
-      if (screen.name !== selectedSource) {
-        selectedDestination = screen.name;
-        return;
-      }
-    }
-  }
-  onSelectedSourceChanged: ensureDifferentSelection()
-  onSelectedDestinationChanged: ensureDifferentSelection()
-
-
 
   Rectangle {
     id: panelContainer
@@ -103,7 +121,7 @@ Item {
         Layout.fillWidth: true
         label: pluginApi?.tr("panel.source.label")
         description: pluginApi?.tr("panel.source.description")
-        model: root.sourceModel
+        model: root.screenModel
         currentKey: root.selectedSource
         enabled: !(mainInstance?.mirroringActive ?? false) && !root.controlsLocked
         onSelected: key => selectedSource = key
@@ -113,7 +131,7 @@ Item {
         Layout.fillWidth: true
         label: pluginApi?.tr("panel.destination.label")
         description: pluginApi?.tr("panel.destination.description")
-        model: root.destinationModel
+        model: root.screenModel
         currentKey: root.selectedDestination
         enabled: !(mainInstance?.mirroringActive ?? false) && !root.controlsLocked
         onSelected: key => selectedDestination = key
