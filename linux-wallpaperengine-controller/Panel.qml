@@ -957,33 +957,33 @@ Item {
                       color: Color.mSurfaceVariant
                       clip: true
 
-                    Image {
-                      anchors.fill: parent
-                      visible: root.selectedWallpaperData && (!root.selectedWallpaperData.motionPreview || root.selectedWallpaperData.motionPreview.length === 0) && root.selectedWallpaperData.thumb && root.selectedWallpaperData.thumb.length > 0
-                      source: visible ? ("file://" + root.selectedWallpaperData.thumb) : ""
-                      fillMode: Image.PreserveAspectCrop
-                      cache: false
-                    }
+                      Image {
+                        anchors.fill: parent
+                        visible: root.selectedWallpaperData && (!root.selectedWallpaperData.motionPreview || root.selectedWallpaperData.motionPreview.length === 0) && root.selectedWallpaperData.thumb && root.selectedWallpaperData.thumb.length > 0
+                        source: visible ? ("file://" + root.selectedWallpaperData.thumb) : ""
+                        fillMode: Image.PreserveAspectCrop
+                        cache: false
+                      }
 
-                    AnimatedImage {
-                      anchors.fill: parent
-                      visible: root.selectedWallpaperData && root.selectedWallpaperData.motionPreview && root.selectedWallpaperData.motionPreview.length > 0 && !root.isVideoMotion(root.selectedWallpaperData.motionPreview)
-                      source: visible ? ("file://" + root.selectedWallpaperData.motionPreview) : ""
-                      fillMode: Image.PreserveAspectCrop
-                      cache: false
-                      playing: visible
-                    }
+                      AnimatedImage {
+                        anchors.fill: parent
+                        visible: root.selectedWallpaperData && root.selectedWallpaperData.motionPreview && root.selectedWallpaperData.motionPreview.length > 0 && !root.isVideoMotion(root.selectedWallpaperData.motionPreview)
+                        source: visible ? ("file://" + root.selectedWallpaperData.motionPreview) : ""
+                        fillMode: Image.PreserveAspectCrop
+                        cache: false
+                        playing: visible
+                      }
 
-                    Video {
-                      anchors.fill: parent
-                      visible: root.selectedWallpaperData && root.selectedWallpaperData.motionPreview && root.selectedWallpaperData.motionPreview.length > 0 && root.isVideoMotion(root.selectedWallpaperData.motionPreview)
-                      autoPlay: true
-                      loops: MediaPlayer.Infinite
-                      muted: true
-                      fillMode: VideoOutput.PreserveAspectCrop
-                      source: visible ? ("file://" + root.selectedWallpaperData.motionPreview) : ""
+                      Video {
+                        anchors.fill: parent
+                        visible: root.selectedWallpaperData && root.selectedWallpaperData.motionPreview && root.selectedWallpaperData.motionPreview.length > 0 && root.isVideoMotion(root.selectedWallpaperData.motionPreview)
+                        autoPlay: true
+                        loops: MediaPlayer.Infinite
+                        muted: true
+                        fillMode: VideoOutput.PreserveAspectCrop
+                        source: visible ? ("file://" + root.selectedWallpaperData.motionPreview) : ""
+                      }
                     }
-                  }
 
                     NText {
                       Layout.fillWidth: true
@@ -1034,20 +1034,7 @@ Item {
                       Layout.fillWidth: true
 
                       NText {
-                        text: root.selectedWallpaperData
-                          ? (String(root.selectedWallpaperData.resolution || "unknown") === "unknown"
-                            ? pluginApi?.tr("panel.resolutionUnknown")
-                            : root.selectedWallpaperData.resolution)
-                          : ""
-                        color: Color.mOnSurface
-                      }
-                    }
-
-                    RowLayout {
-                      Layout.fillWidth: true
-
-                      NText {
-                        text: pluginApi?.tr("panel.infoSize")
+                        text: pluginApi?.tr("panel.infoId")
                         color: Color.mOnSurfaceVariant
                       }
 
@@ -1065,19 +1052,19 @@ Item {
 
                       NText {
                         text: pluginApi?.tr("panel.infoResolution")
-                      color: Color.mOnSurfaceVariant
-                    }
+                        color: Color.mOnSurfaceVariant
+                      }
 
-                    Item { Layout.fillWidth: true }
+                      Item { Layout.fillWidth: true }
 
-                    NText {
-                      text: root.selectedWallpaperData
-                        ? (String(root.selectedWallpaperData.resolution || "unknown") === "unknown"
-                          ? pluginApi?.tr("panel.resolutionUnknown")
-                          : root.selectedWallpaperData.resolution)
-                        : ""
-                      color: Color.mOnSurface
-                    }
+                      NText {
+                        text: root.selectedWallpaperData
+                          ? (String(root.selectedWallpaperData.resolution || "unknown") === "unknown"
+                            ? pluginApi?.tr("panel.resolutionUnknown")
+                            : root.selectedWallpaperData.resolution)
+                          : ""
+                        color: Color.mOnSurface
+                      }
                     }
 
                     RowLayout {
