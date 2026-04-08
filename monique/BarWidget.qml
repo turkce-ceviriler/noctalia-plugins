@@ -4,6 +4,7 @@ import Quickshell
 import qs.Commons
 import qs.Widgets
 import qs.Services.UI
+import Quickshell.Io
 
 Item {
   id: root
@@ -82,10 +83,21 @@ Item {
     }
   }
 
+  Process {
+    id: openMoniqueProcess
+    command: ["monique"]
+  }
+
   NPopupContextMenu {
     id: contextMenu
 
     model: [
+      {
+        "label": pluginApi?.tr("actions.open-monique"),
+        "action": "open-monique",
+        "icon": "device-desktop-cog",
+        "enabled": mainInstance?.moniqueInstalled ?? false
+      },
       {
         "label": pluginApi?.tr("actions.widget-settings"),
         "action": "widget-settings",
@@ -97,7 +109,9 @@ Item {
       contextMenu.close()
       PanelService.closeContextMenu(screen)
 
-      if (action === "widget-settings") {
+      if (action === "open-monique") {
+        openMoniqueProcess.running = true
+      } else if (action === "widget-settings") {
         BarService.openPluginSettings(screen, pluginApi.manifest)
       }
     }

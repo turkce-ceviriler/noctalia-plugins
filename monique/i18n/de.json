@@ -6,6 +6,7 @@
     "not-installed": "monique nicht gefunden. Installiere Monique, um dieses Plugin zu nutzen."
   },
   "actions": {
+    "open-monique": "Monique öffnen",
     "widget-settings": "Widget-Einstellungen"
   },
   "settings": {

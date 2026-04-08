@@ -6,6 +6,7 @@
     "not-installed": "monique не найден. Установите Monique для использования этого плагина."
   },
   "actions": {
+    "open-monique": "Открыть Monique",
     "widget-settings": "Настройки виджета"
   },
   "settings": {

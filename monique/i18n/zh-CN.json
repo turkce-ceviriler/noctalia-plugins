@@ -6,6 +6,7 @@
     "not-installed": "未找到 monique。请安装 Monique 以使用此插件。"
   },
   "actions": {
+    "open-monique": "打开 Monique",
     "widget-settings": "小部件设置"
   },
   "settings": {
