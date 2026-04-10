@@ -114,7 +114,7 @@ Item {
         root.activeProfile = switchProcess.profileName
         ToastService.showNotice(
           pluginApi?.tr("toast.title"),
-          (pluginApi?.tr("toast.switched") || "Switched to {profile}").replace("{profile}", switchProcess.profileName),
+          pluginApi?.tr("toast.switched").replace("{profile}", switchProcess.profileName),
           "device-desktop"
         )
       } else {
