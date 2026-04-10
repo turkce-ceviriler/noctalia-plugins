@@ -82,6 +82,7 @@
     "clampClamp": "Clamp",
     "clampBorder": "Border",
     "clampRepeat": "Repeat",
+    "propertyLabelThemeColor": "Цвет темы",
     "targetAllDisplays": "Цель: все дисплеи",
     "targetSingleDisplay": "Цель: {screen}",
     "applySingleDisplay": "Применить к {screen}",
@@ -123,7 +124,7 @@
     "category": {
       "interfaceTitle": "Интерфейс",
       "performanceTitle": "Производительность",
-      "compatibilityTitle": "Совместимость",
+      "compatibilityTitle": "Ресурсы",
       "audioTitle": "Аудио",
       "displayTitle": "Отображение"
     },

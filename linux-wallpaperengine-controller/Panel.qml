@@ -269,6 +269,10 @@ Item {
       return "";
     }
 
+    if (/^scheme\s+color$/i.test(raw)) {
+      return pluginApi?.tr("panel.propertyLabelThemeColor");
+    }
+
     const looksLikeKey = /^[a-z0-9_]+$/i.test(raw) && raw.indexOf("_") >= 0;
     if (!looksLikeKey) {
       return raw;
@@ -1873,6 +1877,33 @@ Item {
                         }
                       }
 
+                      Rectangle {
+                        visible: root.wallpaperPropertyLoadFailedByPath[String(root.selectedWallpaperData?.path || "")] === true
+                        color: Qt.alpha(Color.mError, 0.16)
+                        radius: Style.radiusXS
+                        implicitWidth: sidebarPropertyFailedBadgeRow.implicitWidth + Style.marginS * 2
+                        implicitHeight: sidebarPropertyFailedBadgeRow.implicitHeight + Style.marginXS * 2
+
+                        RowLayout {
+                          id: sidebarPropertyFailedBadgeRow
+                          anchors.centerIn: parent
+                          spacing: Style.marginXS
+
+                          NIcon {
+                            icon: "alert-triangle"
+                            pointSize: Style.fontSizeM
+                            color: Color.mError
+                          }
+
+                          NText {
+                            text: pluginApi?.tr("panel.propertiesFailedBadge")
+                            color: Color.mError
+                            font.pointSize: Style.fontSizeXS
+                            font.weight: Font.Medium
+                          }
+                        }
+                      }
+
                     }
 
                     RowLayout {
@@ -1889,23 +1920,6 @@ Item {
                       NText {
                         text: root.selectedWallpaperData ? root.typeLabel(root.selectedWallpaperData.type) : ""
                         color: Color.mOnSurface
-                      }
-                    }
-
-                    RowLayout {
-                      Layout.fillWidth: true
-
-                      NText {
-                        text: pluginApi?.tr("panel.infoId")
-                        color: Color.mOnSurfaceVariant
-                      }
-
-                      Item { Layout.fillWidth: true }
-
-                      NText {
-                        text: root.selectedWallpaperData ? root.selectedWallpaperData.id : ""
-                        color: Color.mOnSurface
-                        elide: Text.ElideMiddle
                       }
                     }
 

@@ -82,6 +82,7 @@
     "clampClamp": "Clamp",
     "clampBorder": "Border",
     "clampRepeat": "Repeat",
+    "propertyLabelThemeColor": "Theme Color",
     "targetAllDisplays": "Target: All displays",
     "targetSingleDisplay": "Target: {screen}",
     "applySingleDisplay": "Apply to {screen}",
@@ -123,7 +124,7 @@
     "category": {
       "interfaceTitle": "Interface",
       "performanceTitle": "Performance",
-      "compatibilityTitle": "Compatibility",
+      "compatibilityTitle": "Resources",
       "audioTitle": "Audio",
       "displayTitle": "Display"
     },

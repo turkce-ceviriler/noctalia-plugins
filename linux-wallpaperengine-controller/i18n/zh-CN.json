@@ -82,6 +82,7 @@
     "clampClamp": "钳制",
     "clampBorder": "边框",
     "clampRepeat": "重复",
+    "propertyLabelThemeColor": "主题色",
     "targetAllDisplays": "目标：全部显示器",
     "targetSingleDisplay": "目标：{screen}",
     "applySingleDisplay": "应用到 {screen}",
@@ -123,7 +124,7 @@
     "category": {
       "interfaceTitle": "界面",
       "performanceTitle": "性能",
-      "compatibilityTitle": "兼容性",
+      "compatibilityTitle": "资源",
       "audioTitle": "音频",
       "displayTitle": "显示"
     },

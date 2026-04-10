@@ -82,6 +82,7 @@
     "clampClamp": "鉗制",
     "clampBorder": "邊框",
     "clampRepeat": "重複",
+    "propertyLabelThemeColor": "主題色",
     "targetAllDisplays": "目標：全部顯示器",
     "targetSingleDisplay": "目標：{screen}",
     "applySingleDisplay": "套用到 {screen}",
@@ -123,7 +124,7 @@
     "category": {
       "interfaceTitle": "介面",
       "performanceTitle": "效能",
-      "compatibilityTitle": "相容性",
+      "compatibilityTitle": "資源",
       "audioTitle": "音訊",
       "displayTitle": "顯示"
     },

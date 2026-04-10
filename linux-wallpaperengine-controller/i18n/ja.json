@@ -82,6 +82,7 @@
     "clampClamp": "Clamp",
     "clampBorder": "Border",
     "clampRepeat": "Repeat",
+    "propertyLabelThemeColor": "テーマカラー",
     "targetAllDisplays": "対象: すべてのディスプレイ",
     "targetSingleDisplay": "対象: {screen}",
     "applySingleDisplay": "{screen} に適用",
@@ -123,7 +124,7 @@
     "category": {
       "interfaceTitle": "インターフェース",
       "performanceTitle": "パフォーマンス",
-      "compatibilityTitle": "互換性",
+      "compatibilityTitle": "リソース",
       "audioTitle": "音声",
       "displayTitle": "表示"
     },
