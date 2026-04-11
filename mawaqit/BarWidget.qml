@@ -68,7 +68,7 @@ Item {
   readonly property string lastPrayerLabel: {
     const key = mainInstance?.getPrayer(lastPrayerName)?.labelKey ?? ""
     if (!key) return ""
-    return pluginApi?.tr(key) ?? ""
+    return pluginApi?.tr(key)
   }
 
   readonly property string nextPrayerTimeStr: {
@@ -90,12 +90,12 @@ Item {
     const m = Math.floor((secondsToNext % 3600) / 60)
     if (h > 0) return `${h}h ${m}m`
     if (m > 0) return `${m}m`
-    return pluginApi?.tr("widget.soon") ?? ""
+    return pluginApi?.tr("widget.soon")
   }
 
   readonly property string elapsedStr: {
     if (secondsElapsed < 0) return ""
-    if (secondsElapsed < 60) return pluginApi?.tr("widget.now") ?? ""
+    if (secondsElapsed < 60) return pluginApi?.tr("widget.now")
     const h = Math.floor(secondsElapsed / 3600)
     const m = Math.floor((secondsElapsed % 3600) / 60)
     if (h > 0) return `+${h}h ${m}m`
@@ -103,8 +103,8 @@ Item {
   }
 
   readonly property string tooltipText: {
-    if (!prayerTimings) return pluginApi?.tr("widget.tooltip.noData") ?? ""
-    return `${nextPrayerLabel}: ${nextPrayerTimeStr}\n${pluginApi?.tr("widget.tooltip.countdown") ?? ""}: ${countdownStr}`
+    if (!prayerTimings) return pluginApi?.tr("widget.tooltip.noData")
+    return `${nextPrayerLabel}: ${nextPrayerTimeStr}\n${pluginApi?.tr("widget.tooltip.countdown")}: ${countdownStr}`
   }
 
   readonly property string displayIcon: {
@@ -123,8 +123,8 @@ Item {
     }
 
     if (prayerNow) {
-      if (hidePrayerName) return pluginApi?.tr("widget.now") ?? ""
-      return `${nextPrayerLabel} · ${pluginApi?.tr("widget.now") ?? ""}`
+      if (hidePrayerName) return pluginApi?.tr("widget.now")
+      return `${nextPrayerLabel} · ${pluginApi?.tr("widget.now")}`
     }
 
     if (showCountdown && secondsToNext > 0) {
@@ -143,7 +143,7 @@ Item {
 
     if (isElapsed)    return hidePrayerName ? elapsedStr    : lastPrayerLabel
     if (hidePrayerName) {
-      if (prayerNow)                          return pluginApi?.tr("widget.now") ?? ""
+      if (prayerNow)                          return pluginApi?.tr("widget.now")
       if (showCountdown && secondsToNext > 0) return countdownStr
       return nextPrayerTimeStr
     }
@@ -154,7 +154,7 @@ Item {
     if (!prayerTimings || !nextPrayerName) return ""
     if (isElapsed)      return hidePrayerName ? "" : elapsedStr
     if (hidePrayerName) return ""
-    if (prayerNow)      return pluginApi?.tr("widget.now") ?? ""
+    if (prayerNow)      return pluginApi?.tr("widget.now")
     if (showCountdown && secondsToNext > 0) return countdownStr
     return nextPrayerTimeStr
   }
