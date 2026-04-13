@@ -581,7 +581,7 @@
     {
       "id": "linux-wallpaperengine-controller",
       "name": "Linux WallpaperEngine Controller",
-      "version": "1.0.6",
+      "version": "1.1.2",
       "official": false,
       "author": "PaloMiku",
       "description": "Control linux-wallpaperengine from Noctalia with per-screen wallpaper selection.",
@@ -593,7 +593,7 @@
         "Panel",
         "Theming"
       ],
-      "lastUpdated": "2026-04-07T10:24:52+08:00"
+      "lastUpdated": "2026-04-11T00:35:06+08:00"
     },
     {
       "id": "lyrics-fetch",
