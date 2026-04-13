@@ -1,6 +1,6 @@
 # Squeekboard Toggle
 
-## Deprectated:
+## Deprecated:
 This plugin is deprecated and got consolidated in [osk-toggle](https://github.com/noctalia-dev/noctalia-plugins/osk-toggle) that handles both Squeekboard and wvkbd from a single widget.
 The Squeekboard behavior is unchanged — it's purely additive.
 
