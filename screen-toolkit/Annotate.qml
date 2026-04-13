@@ -963,19 +963,19 @@ Variants {
                         overlayWin._tbUserX = toolbar._dragStx + (gp.x - toolbar._dragSx)
                         overlayWin._tbUserY = toolbar._dragSty + (gp.y - toolbar._dragSy)
                     }
-                    onEntered: TooltipService.show(parent, "Drag to move toolbar")
+                    onEntered: TooltipService.show(parent, root.mainInstance?.pluginApi?.tr("annotate.dragToolbar"))
                     onExited:  TooltipService.hide()
                 }
             }
             readonly property var toolDefs: [
-                { id: "pencil",      icon: "pencil",         tooltip: "Draw freehand"   },
-                { id: "highlighter", icon: "highlight",      tooltip: "Highlight area"  },
-                { id: "line",        icon: "slash",          tooltip: "Draw line"       },
-                { id: "arrow",       icon: "arrow-up-right", tooltip: "Draw arrow"      },
-                { id: "rect",        icon: "square",         tooltip: "Draw rectangle"  },
-                { id: "circle",      icon: "circle",         tooltip: "Draw ellipse"    },
-                { id: "text",        icon: "text-size",      tooltip: "Add text"        },
-                { id: "blur",        icon: "eye-off",        tooltip: "Pixelate region" }
+                { id: "pencil",      icon: "pencil",         tooltip: root.mainInstance?.pluginApi?.tr("annotate.toolPencil")      },
+                { id: "highlighter", icon: "highlight",      tooltip: root.mainInstance?.pluginApi?.tr("annotate.toolHighlighter") },
+                { id: "line",        icon: "slash",          tooltip: root.mainInstance?.pluginApi?.tr("annotate.toolLine")        },
+                { id: "arrow",       icon: "arrow-up-right", tooltip: root.mainInstance?.pluginApi?.tr("annotate.toolArrow")       },
+                { id: "rect",        icon: "square",         tooltip: root.mainInstance?.pluginApi?.tr("annotate.toolRect")        },
+                { id: "circle",      icon: "circle",         tooltip: root.mainInstance?.pluginApi?.tr("annotate.toolCircle")      },
+                { id: "text",        icon: "text-size",      tooltip: root.mainInstance?.pluginApi?.tr("annotate.toolText")        },
+                { id: "blur",        icon: "eye-off",        tooltip: root.mainInstance?.pluginApi?.tr("annotate.toolBlur")        }
             ]
             readonly property var colorDefs: [
                 "#FF4444", "#FF8C00", "#FFD700", "#44FF88",
@@ -1019,7 +1019,7 @@ Variants {
                     ToolbarSeparator {}
                     ZoomBtn {
                         iconName:   "zoom-out"
-                        tip:        "Zoom out"
+                        tip:        root.mainInstance?.pluginApi?.tr("annotate.zoomOut")
                         btnEnabled: root.zoomScale > 1.0
                         onClicked:  overlayWin.requestZoom(Math.max(1.0, root.zoomScale - 1.0))
                     }
@@ -1034,7 +1034,7 @@ Variants {
                     }
                     ZoomBtn {
                         iconName:   "zoom-in"
-                        tip:        "Zoom in (view only)"
+                        tip:        root.mainInstance?.pluginApi?.tr("annotate.zoomIn")
                         btnEnabled: root.zoomScale < 5.0
                         onClicked:  overlayWin.requestZoom(Math.min(5.0, root.zoomScale + 1.0))
                     }
@@ -1058,8 +1058,8 @@ Variants {
                         }
                     }
                     ToolbarSeparator {}
-                    ActionBtn { iconName: "corner-up-left"; tip: "Undo last stroke"; onClicked: toolbar.doUndo() }
-                    ActionBtn { iconName: "trash";          tip: "Clear all"; danger: true; onClicked: toolbar.doClear() }
+                    ActionBtn { iconName: "corner-up-left"; tip: root.mainInstance?.pluginApi?.tr("annotate.undo");     onClicked: toolbar.doUndo() }
+                    ActionBtn { iconName: "trash";          tip: root.mainInstance?.pluginApi?.tr("annotate.clearAll"); danger: true; onClicked: toolbar.doClear() }
                     SaveBtn {
                         iconName:  "copy"
                         labelText: overlayWin.isSaving
@@ -1078,7 +1078,7 @@ Variants {
                         primary:   false
                         onClicked: overlayWin.flattenAndSave()
                     }
-                    ActionBtn { iconName: "x"; tip: "Close"; onClicked: toolbar.doClose() }
+                    ActionBtn { iconName: "x"; tip: root.mainInstance?.pluginApi?.tr("annotate.close"); onClicked: toolbar.doClose() }
                     ToolbarSeparator {}
                     DragBtn { isVertical: false; anchors.verticalCenter: parent.verticalCenter }
                 }
@@ -1094,7 +1094,7 @@ Variants {
                     ToolbarSeparator {}
                     ZoomBtn {
                         iconName:   "zoom-out"
-                        tip:        "Zoom out"
+                        tip:        root.mainInstance?.pluginApi?.tr("annotate.zoomOut")
                         btnEnabled: root.zoomScale > 1.0
                         onClicked:  overlayWin.requestZoom(Math.max(1.0, root.zoomScale - 1.0))
                     }
@@ -1107,7 +1107,7 @@ Variants {
                     }
                     ZoomBtn {
                         iconName:   "zoom-in"
-                        tip:        "Zoom in (view only)"
+                        tip:        root.mainInstance?.pluginApi?.tr("annotate.zoomIn")
                         btnEnabled: root.zoomScale < 5.0
                         onClicked:  overlayWin.requestZoom(Math.min(5.0, root.zoomScale + 1.0))
                     }
@@ -1131,11 +1131,11 @@ Variants {
                         }
                     }
                     ToolbarSeparator {}
-                    ActionBtn { iconName: "corner-up-left"; tip: "Undo last stroke"; onClicked: toolbar.doUndo() }
-                    ActionBtn { iconName: "trash";          tip: "Clear all"; danger: true; onClicked: toolbar.doClear() }
-                    ActionBtn { iconName: "copy";           tip: root.mainInstance?.pluginApi?.tr("annotate.copyTip"); onClicked: overlayWin.flattenAndCopy() }
-                    ActionBtn { iconName: "device-floppy";  tip: root.mainInstance?.pluginApi?.tr("annotate.saveTip"); onClicked: overlayWin.flattenAndSave() }
-                    ActionBtn { iconName: "x";              tip: "Close";             onClicked: toolbar.doClose() }
+                    ActionBtn { iconName: "corner-up-left"; tip: root.mainInstance?.pluginApi?.tr("annotate.undo");     onClicked: toolbar.doUndo() }
+                    ActionBtn { iconName: "trash";          tip: root.mainInstance?.pluginApi?.tr("annotate.clearAll"); danger: true; onClicked: toolbar.doClear() }
+                    ActionBtn { iconName: "copy";           tip: root.mainInstance?.pluginApi?.tr("annotate.copyTip");  onClicked: overlayWin.flattenAndCopy() }
+                    ActionBtn { iconName: "device-floppy";  tip: root.mainInstance?.pluginApi?.tr("annotate.saveTip");  onClicked: overlayWin.flattenAndSave() }
+                    ActionBtn { iconName: "x";              tip: root.mainInstance?.pluginApi?.tr("annotate.close");    onClicked: toolbar.doClose() }
                     ToolbarSeparator {}
                     DragBtn { isVertical: true; anchors.horizontalCenter: parent.horizontalCenter }
                 }
@@ -1328,4 +1328,3 @@ Variants {
         }
     }
 }
-

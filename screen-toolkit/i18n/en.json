@@ -157,7 +157,21 @@
     "saving": "Saving...",
     "copying": "Copying...",
     "saveTip": "Save to disk",
-    "copyTip": "Copy to clipboard"
+    "copyTip": "Copy to clipboard",
+    "zoomOut": "Zoom out",
+    "zoomIn": "Zoom in (view only)",
+    "undo": "Undo last stroke",
+    "clearAll": "Clear all",
+    "close": "Close",
+    "dragToolbar": "Drag to move toolbar",
+    "toolPencil": "Draw freehand",
+    "toolHighlighter": "Highlight area",
+    "toolLine": "Draw line",
+    "toolArrow": "Draw arrow",
+    "toolRect": "Draw rectangle",
+    "toolCircle": "Draw ellipse",
+    "toolText": "Add text",
+    "toolBlur": "Pixelate region"
   },
   "record": {
     "stop": "Stop",
@@ -190,4 +204,3 @@
     "remove": "Remove"
   }
 }
-
