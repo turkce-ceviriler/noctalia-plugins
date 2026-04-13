@@ -972,6 +972,21 @@
       "lastUpdated": "2026-02-23T20:48:07-05:00"
     },
     {
+      "id": "not-just-text",
+      "name": "Not Just Text",
+      "version": "1.0.0",
+      "official": false,
+      "author": "blackteaextract",
+      "description": "Displays custom text, fortune quotes, or a random entry from a user-provided text file in the bar.",
+      "repository": "https://github.com/noctalia-dev/noctalia-plugins",
+      "minNoctaliaVersion": "4.4.1",
+      "license": "MIT",
+      "tags": [
+        "Bar"
+      ],
+      "lastUpdated": "2026-04-13T20:19:15Z"
+    },
+    {
       "id": "notes-scratchpad",
       "name": "Notes Scratchpad",
       "version": "1.1.6",
