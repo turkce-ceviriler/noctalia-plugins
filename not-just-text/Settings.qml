@@ -15,8 +15,10 @@ ColumnLayout {
     property bool editFortuneOffensive: cfg.fortuneOffensive ?? defaults.fortuneOffensive ?? false
     property bool editFortuneEqual: cfg.fortuneEqual ?? defaults.fortuneEqual ?? false
     property string editFortuneCategory: cfg.fortuneCategory ?? defaults.fortuneCategory ?? ""
+    property int editFortuneMaxLength: cfg.fortuneMaxLength ?? defaults.fortuneMaxLength ?? 60
     property bool editListEnabled: cfg.listEnabled ?? defaults.listEnabled ?? false
     property string editTextFile: cfg.textFile ?? defaults.textFile ?? ""
+    property bool editRefreshOnWallpaper: cfg.refreshOnWallpaper ?? defaults.refreshOnWallpaper ?? true
 
     spacing: Style.marginL
 
@@ -70,6 +72,26 @@ ColumnLayout {
         onTextChanged: root.editFortuneCategory = text
     }
 
+    ColumnLayout {
+        Layout.fillWidth: true
+        visible: root.editFortuneEnabled
+        spacing: Style.marginS
+
+        NLabel {
+            label: pluginApi?.tr("settings.fortuneMaxLength.label", {"value": root.editFortuneMaxLength})
+            description: pluginApi?.tr("settings.fortuneMaxLength.desc")
+        }
+
+        NSlider {
+            Layout.fillWidth: true
+            from: 10
+            to: 200
+            value: root.editFortuneMaxLength
+            stepSize: 5
+            onMoved: root.editFortuneMaxLength = Math.round(value)
+        }
+    }
+
     NToggle {
         Layout.fillWidth: true
         visible: root.editFortuneEnabled
@@ -88,6 +110,15 @@ ColumnLayout {
         onToggled: checked => root.editFortuneEqual = checked
     }
 
+    NToggle {
+        Layout.fillWidth: true
+        visible: root.editFortuneEnabled || root.editListEnabled
+        label: pluginApi?.tr("settings.refreshOnWallpaper.label")
+        description: pluginApi?.tr("settings.refreshOnWallpaper.desc")
+        checked: root.editRefreshOnWallpaper
+        onToggled: checked => root.editRefreshOnWallpaper = checked
+    }
+
     function saveSettings() {
         if (!pluginApi) return;
         pluginApi.pluginSettings.text = root.editText;
@@ -95,8 +126,10 @@ ColumnLayout {
         pluginApi.pluginSettings.fortuneOffensive = root.editFortuneOffensive;
         pluginApi.pluginSettings.fortuneEqual = root.editFortuneEqual;
         pluginApi.pluginSettings.fortuneCategory = root.editFortuneCategory;
+        pluginApi.pluginSettings.fortuneMaxLength = root.editFortuneMaxLength;
         pluginApi.pluginSettings.listEnabled = root.editListEnabled;
         pluginApi.pluginSettings.textFile = root.editTextFile;
+        pluginApi.pluginSettings.refreshOnWallpaper = root.editRefreshOnWallpaper;
         pluginApi.saveSettings();
     }
 }
