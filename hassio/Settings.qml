@@ -33,5 +33,6 @@ ColumnLayout {
         pluginApi.pluginSettings.haUrl = root.editUrl;
         pluginApi.pluginSettings.haToken = root.editToken;
         pluginApi.saveSettings();
+        pluginApi.mainInstance.reloadSettings();
     }
 }

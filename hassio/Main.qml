@@ -1,5 +1,6 @@
 import QtQuick
 import QtWebSockets
+import qs.Commons
 
 QtObject {
     id: root
@@ -14,21 +15,22 @@ QtObject {
 
     property ListModel entities: ListModel {}
 
-    // Fast entity_id → ListModel index lookup — rebuilt on every _populateEntities call
     property var _entityIndex: ({})
+
+    // True while a drop-and-retry cycle is in progress; cleared only on successful auth
+    property bool isReconnecting: false
 
     property int _msgId: 1
     property int _initialFetchId: -1
     property var _pendingCallbacks: ({})
-    property string haUrl: pluginApi?.pluginSettings?.haUrl ?? ""
-    property string haToken: pluginApi?.pluginSettings?.haToken ?? ""
+    property string haUrl: ""
+    property string haToken: ""
 
     property int _reconnectAttempts: 0
     property int _reconnectBaseInterval: 5000
     property int _reconnectMaxInterval: 60000
 
-    onHaUrlChanged: _handleSettingsUpdate()
-    onHaTokenChanged: _handleSettingsUpdate()
+    Component.onCompleted: _loadSettings()
 
     property WebSocket _socket: WebSocket {
         id: _socket
@@ -51,6 +53,7 @@ QtObject {
                 root.connected = false;
                 root.authenticated = false;
                 if (!root.authFailed) {
+                    root.isReconnecting = true;
                     root._scheduleReconnect();
                 }
             } else if (status === WebSocket.Error) {
@@ -58,6 +61,7 @@ QtObject {
                 root.connected = false;
                 root.authenticated = false;
                 if (!root.authFailed) {
+                    root.isReconnecting = true;
                     root._scheduleReconnect();
                 }
             }
@@ -73,12 +77,13 @@ QtObject {
             case "auth_ok":
                 Logger.i("HASS", "Authenticated");
                 root.authenticated = true;
+                root.isReconnecting = false;
                 root._resetReconnect();
                 root._fetchStates();
                 root._subscribeEvents();
                 break;
             case "auth_invalid":
-                Logger.e("HASS", "Auth failed — check your token");
+                Logger.e("HASS", "Auth failed - check your token");
                 root.authenticated = false;
                 root.authFailed = true;
                 root._resetReconnect();
@@ -225,13 +230,21 @@ QtObject {
         }));
     }
 
-    function _handleSettingsUpdate() {
+    function _loadSettings() {
+        const url = pluginApi?.pluginSettings?.haUrl ?? "";
+        const token = pluginApi?.pluginSettings?.haToken ?? "";
+        // Only reconnect if values actually changed
+        if (url === root.haUrl && token === root.haToken)
+            return;
+        root.haUrl = url;
+        root.haToken = token;
         _settingsDebounce.restart();
     }
 
     function reconnect() {
         Logger.i("HASS", "Manual reconnect initiated");
         root.authFailed = false;
+        root.isReconnecting = false;
         root._resetReconnect();
         root.connected = false;
         root.authenticated = false;
@@ -279,12 +292,18 @@ QtObject {
         return modes.some(m => targets.includes(m));
     }
 
+    // Called from Settings.qml after the user saves
+    function reloadSettings() {
+        _loadSettings();
+    }
+
     property Timer _settingsDebounce: Timer {
         interval: 300
         repeat: false
         onTriggered: {
             Logger.i("HASS", "Settings changed, reconnecting...");
             root.authFailed = false;
+            root.isReconnecting = false;
             root._resetReconnect();
             _socket.active = false;
             root.connected = false;

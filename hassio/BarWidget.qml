@@ -16,11 +16,11 @@ NIconButton {
 
     property var main: pluginApi?.mainInstance ?? null
 
-    // "Connected"     — authenticated and live
-    // "Disconnected"  — was connected, now dropped (reconnecting)
-    // "Connecting"    — socket open but not yet authed (token present)
-    // "Unconfigured"  — no token set, nothing to attempt
-    // "AuthFailed"    — token rejected by HA
+    // "Connected"     - authenticated and live
+    // "Connecting"    - socket opening or authenticating (first attempt or after settings change)
+    // "Disconnected"  - dropped after a successful connection; reconnect backoff in progress
+    // "Unconfigured"  - no token set, nothing to attempt
+    // "AuthFailed"    - token rejected by HA
     readonly property string _status: {
         if (!root.main)
             return "Unconfigured";
@@ -28,11 +28,12 @@ NIconButton {
             return "Unconfigured";
         if (root.main.authFailed)
             return "AuthFailed";
-        if (!root.main.connected)
+        if (root.main.authenticated)
+            return "Connected";
+        // Not yet authenticated - distinguish first-time connect from a drop-and-retry
+        if (root.main.isReconnecting)
             return "Disconnected";
-        if (!root.main.authenticated)
-            return "Connecting";
-        return "Connected";
+        return "Connecting";
     }
 
     readonly property string _statusLabel: {

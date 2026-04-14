@@ -133,7 +133,7 @@ Item {
                 delegate: Rectangle {
                     id: entityRow
                     width: ListView.view.width
-                    height: Style.rowHeightM
+                    height: Math.round(56 * Style.uiScaleRatio)
                     color: Color.mSurfaceVariant
                     radius: Style.radiusM
 
@@ -151,7 +151,7 @@ Item {
 
                         ColumnLayout {
                             Layout.fillWidth: true
-                            spacing: Style.spacingXXS
+                            spacing: Style.marginXXS
 
                             NText {
                                 text: model.friendly_name

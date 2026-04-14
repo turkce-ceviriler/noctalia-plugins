@@ -32,7 +32,7 @@ Item {
             }
             spacing: Style.marginM
 
-            // ── Header ──────────────────────────────────────────────────────
+            // Header
             RowLayout {
                 Layout.fillWidth: true
                 spacing: Style.marginS
@@ -59,8 +59,8 @@ Item {
 
                 // Connection indicator dot
                 Rectangle {
-                    width: Style.iconSizeXS
-                    height: Style.iconSizeXS
+                    width: Style.marginS
+                    height: Style.marginS
                     radius: width / 2
                     color: {
                         if (!root.main?.connected)
@@ -86,21 +86,21 @@ Item {
                 Layout.fillWidth: true
             }
 
-            // ── List view ────────────────────────────────────────────────────
+            // List view
             Item {
                 Layout.fillWidth: true
                 Layout.fillHeight: true
                 visible: root.view === "list"
 
-                // Empty / error states — shown only when there is nothing to list
+                // Empty / error states - shown only when there is nothing to list
                 ColumnLayout {
                     anchors.centerIn: parent
                     spacing: Style.marginM
                     visible: !(root.main?.entities && root.main.entities.count > 0)
 
-                    // Connection error
+                    // Connection error - only after a genuine drop, not during initial startup
                     ColumnLayout {
-                        visible: !!(root.main && !root.main.connected && !root.main.authFailed && root.main.haToken !== "")
+                        visible: !!(root.main && !root.main.connected && !root.main.authFailed && root.main.haToken !== "" && root.main.isReconnecting)
                         spacing: Style.marginM
 
                         NText {
@@ -159,7 +159,7 @@ Item {
                     }
                 }
 
-                // Entity list — only when entities exist
+                // Entity list - only when entities exist
                 ListView {
                     anchors.fill: parent
                     clip: true
@@ -170,8 +170,7 @@ Item {
                     delegate: Rectangle {
                         id: entityDelegate
                         width: ListView.view.width
-                        // Base row height + optional slider rows (each Style.rowHeightM tall)
-                        height: Style.rowHeightL + (showBrightness ? Style.rowHeightM : 0) + (showColorTemp ? Style.rowHeightM : 0)
+                        height: Math.round(64 * Style.uiScaleRatio) + (showBrightness ? Math.round(56 * Style.uiScaleRatio) : 0) + (showColorTemp ? Math.round(56 * Style.uiScaleRatio) : 0)
                         color: Color.mSurfaceVariant
                         radius: Style.radiusM
                         clip: true
@@ -200,7 +199,7 @@ Item {
                             }
                         }
 
-                        // Single fallback timer — resets isWaiting if no state update arrives
+                        // Single fallback timer - resets isWaiting if no state update arrives
                         Timer {
                             id: waitingTimeout
                             running: entityDelegate.isWaiting
@@ -243,7 +242,7 @@ Item {
 
                                 ColumnLayout {
                                     Layout.fillWidth: true
-                                    spacing: Style.spacingXS
+                                    spacing: Style.marginXS
 
                                     NText {
                                         text: model.friendly_name
@@ -352,7 +351,7 @@ Item {
                                 }
                             }
 
-                            // ── Brightness slider ────────────────────────────
+                            // Brightness slider
                             RowLayout {
                                 Layout.fillWidth: true
                                 visible: entityDelegate.showBrightness
@@ -404,11 +403,11 @@ Item {
                                     text: Math.round((model.brightness > 0 ? model.brightness : 255) / 255 * 100) + "%"
                                     color: Color.mOnSurfaceVariant
                                     pointSize: Style.fontSizeS
-                                    Layout.preferredWidth: Style.iconSizeL
+                                    Layout.preferredWidth: Math.round(44 * Style.uiScaleRatio)
                                 }
                             }
 
-                            // ── Color temperature slider ──────────────────────
+                            // Color temperature slider
                             RowLayout {
                                 Layout.fillWidth: true
                                 visible: entityDelegate.showColorTemp
@@ -460,7 +459,7 @@ Item {
                                     text: Math.round(1000000 / colorTempSlider.value) + "K"
                                     color: Color.mOnSurfaceVariant
                                     pointSize: Style.fontSizeS
-                                    Layout.preferredWidth: Style.iconSizeL
+                                    Layout.preferredWidth: Math.round(44 * Style.uiScaleRatio)
                                 }
                             }
                         }
@@ -468,7 +467,7 @@ Item {
                 }
             }
 
-            // ── Browser view ─────────────────────────────────────────────────
+            // Browser view
             BrowserView {
                 id: browserView
                 Layout.fillWidth: true
@@ -482,7 +481,7 @@ Item {
         }
     }
 
-    // ── Domain helpers ────────────────────────────────────────────────────────
+    // Domain helpers
 
     function isControllable(domain) {
         return ["light", "switch", "input_boolean", "fan", "cover", "lock"].includes(domain);
