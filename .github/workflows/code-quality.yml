@@ -257,7 +257,7 @@ jobs:
             else
               if echo "$line" | grep -E "^\+" >/dev/null; then
                 # Only new lines should be auto checked for this type of code quality
-                if echo "$line" | grep -E "(border(\.width)?|spacing|pointSize|radius|margin(s)?): [0-9]+" >/dev/null; then
+                if echo "$line" | grep -E "(border(\.width)?|spacing|pointSize|radius|margin(s)?): [1-9]+[0-9]*" >/dev/null; then
                   print_line "$h_priority" "$line_index" 'Do not use hardcoded values, always prefer to use the `Style` singleton instead' "$line"
                   issues=$((issues + 1))
                 fi
@@ -279,7 +279,7 @@ jobs:
                   print_line "$l_priority" "$line_index" 'When it comes to translations there is no need for fallback values. From: `pluginApi?.tr("example") || "value"`. To: `pluginApi?.tr("example")`' "$line"
                   issues=$((issues + 1))
                 fi
-                if echo "$line" | grep -E "(text|label|description): *(\"|').*(\"|')" >/dev/null; then 
+                if echo "$line" | grep -E "(text|label|description): *(\"|').+(\"|')" >/dev/null; then 
                   print_line "$h_priority" "$line_index" 'Use translations instead of hardcoded text. Instead of: `"Example Label"`. To: `pluginApi?.tr("panel.example-label")`' "$line"
                   issues=$((issues + 1))
                 fi
