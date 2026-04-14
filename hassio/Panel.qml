@@ -49,7 +49,7 @@ Item {
                 }
 
                 NText {
-                    text: root.view === "list" ? (pluginApi?.tr("panel.title") ?? "Home Assistant") : (pluginApi?.tr("panel.title_add") ?? "Add Entities")
+                    text: root.view === "list" ? pluginApi?.tr("panel.title") : pluginApi?.tr("panel.title_add")
                     pointSize: Style.fontSizeL
                     font.weight: Font.Bold
                     color: Color.mOnSurface
@@ -60,7 +60,7 @@ Item {
                 Rectangle {
                     width: 8
                     height: 8
-                    radius: 4
+                    radius: Style.radiusS
                     color: {
                         if (!root.main?.connected)
                             return Color.mError;
@@ -102,14 +102,14 @@ Item {
 
                         NText {
                             Layout.alignment: Qt.AlignHCenter
-                            text: pluginApi?.tr("panel.error_connection_failed") ?? "Connection Failed"
+                            text: pluginApi?.tr("panel.error_connection_failed")
                             color: Color.mOnSurfaceVariant
                             pointSize: Style.fontSizeM
                         }
 
                         NButton {
                             Layout.alignment: Qt.AlignHCenter
-                            text: pluginApi?.tr("panel.btn_reconnect") ?? "Try Reconnect"
+                            text: pluginApi?.tr("panel.btn_reconnect")
                             onClicked: root.main.reconnect()
                         }
                     }
@@ -120,14 +120,14 @@ Item {
 
                         NText {
                             Layout.alignment: Qt.AlignHCenter
-                            text: root.main?.haToken === "" ? (pluginApi?.tr("panel.error_token_missing") ?? "Token Missing") : (pluginApi?.tr("panel.error_auth_failed") ?? "Authentication Failed")
+                            text: root.main?.haToken === "" ? pluginApi?.tr("panel.error_token_missing") : pluginApi?.tr("panel.error_auth_failed")
                             color: Color.mSecondary // Replaced mWarning
                             pointSize: Style.fontSizeM
                         }
 
                         NButton {
                             Layout.alignment: Qt.AlignHCenter
-                            text: pluginApi?.tr("panel.btn_retry_auth") ?? "Retry Auth"
+                            text: pluginApi?.tr("panel.btn_retry_auth")
                             onClicked: root.main.reconnect()
                         }
                     }
@@ -138,14 +138,14 @@ Item {
 
                         NText {
                             Layout.alignment: Qt.AlignHCenter
-                            text: pluginApi?.tr("panel.empty_no_entities") ?? "No entities pinned"
+                            text: pluginApi?.tr("panel.empty_no_entities")
                             color: Color.mOnSurfaceVariant
                             pointSize: Style.fontSizeM
                         }
 
                         NButton {
                             Layout.alignment: Qt.AlignHCenter
-                            text: pluginApi?.tr("panel.btn_add_entities") ?? "Add entities"
+                            text: pluginApi?.tr("panel.btn_add_entities")
                             onClicked: {
                                 browserView.load();
                                 root.view = "browser";
@@ -230,7 +230,7 @@ Item {
 
                                 ColumnLayout {
                                     Layout.fillWidth: true
-                                    spacing: 2
+                                    spacing: Style.spacingXS
 
                                     NText {
                                         text: model.friendly_name
@@ -243,13 +243,13 @@ Item {
                                     NText {
                                         text: {
                                             if (entityDelegate.isWaiting)
-                                                return pluginApi?.tr("panel.state_updating") ?? "Updating...";
+                                                return pluginApi?.tr("panel.state_updating");
                                             if (isSensor(model.domain))
                                                 return model.state + (model.unit ? " " + model.unit : "");
                                             if (isLight(model.domain) && model.state === "on" && model.brightness >= 0)
                                                 return pluginApi?.tr("panel.state_on_brightness", {
                                                     percent: Math.round(model.brightness / 255 * 100)
-                                                }) ?? ("on · " + Math.round(model.brightness / 255 * 100) + "%");
+                                                });
                                             return model.state;
                                         }
                                         color: Color.mOnSurfaceVariant
@@ -392,7 +392,7 @@ Item {
                                         radius: Style.radiusS
                                         color: Color.mSurface
                                         border.color: Color.mOutline
-                                        border.width: 1
+                                        border.width: Style.borderS
                                         z: 10
 
                                         x: Math.min(Math.max(0, (brightnessSlider.value - brightnessSlider.from) / (brightnessSlider.to - brightnessSlider.from) * brightnessSlider.width - width / 2), brightnessSlider.width - width)
@@ -450,7 +450,7 @@ Item {
                                         radius: Style.radiusS
                                         color: Color.mSurface
                                         border.color: Color.mOutline
-                                        border.width: 1
+                                        border.width: Style.borderS
                                         z: 10
 
                                         x: Math.min(Math.max(0, (colorTempSlider.value - colorTempSlider.from) / (colorTempSlider.to - colorTempSlider.from) * colorTempSlider.width - width / 2), colorTempSlider.width - width)

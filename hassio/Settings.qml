@@ -15,16 +15,16 @@ ColumnLayout {
 
     NTextInput {
         Layout.fillWidth: true
-        label: pluginApi?.tr("settings.url_label") ?? "Home Assistant URL"
-        placeholderText: pluginApi?.tr("settings.url_placeholder") ?? "http://homeassistant.local:8123"
+        label: pluginApi?.tr("settings.url_label")
+        placeholderText: pluginApi?.tr("settings.url_placeholder")
         text: root.editUrl
         onTextChanged: root.editUrl = text
     }
 
     NTextInput {
         Layout.fillWidth: true
-        label: pluginApi?.tr("settings.token_label") ?? "Long-Lived Access Token"
-        placeholderText: pluginApi?.tr("settings.token_placeholder") ?? "Paste your token here"
+        label: pluginApi?.tr("settings.token_label")
+        placeholderText: pluginApi?.tr("settings.token_placeholder")
         text: root.editToken
         onTextChanged: root.editToken = text
     }

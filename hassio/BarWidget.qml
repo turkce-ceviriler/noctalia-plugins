@@ -26,10 +26,10 @@ NIconButton {
 
     readonly property string _statusLabel: {
         if (root._status === "Disconnected")
-            return pluginApi?.tr("widget.status_disconnected") ?? "Disconnected";
+            return pluginApi?.tr("widget.status_disconnected");
         if (root._status === "Connecting")
-            return pluginApi?.tr("widget.status_connecting") ?? "Connecting";
-        return pluginApi?.tr("widget.status_connected") ?? "Connected";
+            return pluginApi?.tr("widget.status_connecting");
+        return pluginApi?.tr("widget.status_connected");
     }
 
     icon: "smart-home"
@@ -56,7 +56,7 @@ NIconButton {
 
     tooltipText: pluginApi?.tr("widget.tooltip", {
         status: root._statusLabel
-    }) ?? ("Status: " + root._statusLabel)
+    })
 
     implicitHeight: Style.barHeight
 

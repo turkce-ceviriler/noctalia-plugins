@@ -75,8 +75,8 @@ Item {
         NTextInput {
             id: searchInput
             Layout.fillWidth: true
-            label: pluginApi?.tr("browser.search_label") ?? "Search"
-            placeholderText: pluginApi?.tr("browser.search_placeholder") ?? "Filter by name or entity ID..."
+            label: pluginApi?.tr("browser.search_label")
+            placeholderText: pluginApi?.tr("browser.search_placeholder")
             onTextChanged: {
                 root._searchText = text;
                 root._refilter();
@@ -109,7 +109,7 @@ Item {
 
                 NText {
                     Layout.alignment: Qt.AlignHCenter
-                    text: pluginApi?.tr("browser.loading") ?? "Loading entities..."
+                    text: pluginApi?.tr("browser.loading")
                     color: Color.mOnSurfaceVariant
                     pointSize: Style.fontSizeM
                 }
@@ -151,7 +151,7 @@ Item {
 
                         ColumnLayout {
                             Layout.fillWidth: true
-                            spacing: 2
+                            spacing: Style.spacingXXS
 
                             NText {
                                 text: model.friendly_name
