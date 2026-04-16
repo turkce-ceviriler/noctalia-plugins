@@ -202,11 +202,12 @@ ColumnLayout {
     wrapMode: Text.Wrap
   }
 
-  RowLayout {
+  ColumnLayout {
     Layout.fillWidth: true
     spacing: Style.marginS
 
     NButton {
+      Layout.fillWidth: true
       text: pluginApi?.tr("settings.cache.refresh")
       icon: root.refreshingCacheSize ? "loader" : "refresh"
       enabled: !root.refreshingCacheSize && !root.clearingCache
@@ -214,6 +215,7 @@ ColumnLayout {
     }
 
     NButton {
+      Layout.fillWidth: true
       text: pluginApi?.tr("settings.cache.clear")
       icon: root.clearingCache ? "loader" : "trash"
       enabled: !root.clearingCache && !root.refreshingCacheSize
