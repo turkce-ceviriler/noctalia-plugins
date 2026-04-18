@@ -335,7 +335,7 @@ ColumnLayout {
     // Info text
     NText {
       Layout.fillWidth: true
-      text: `${root.availableTimezones.length} ${pluginApi?.tr("world-clock.available-timezones") || "timezones available"}`
+      text: `${root.availableTimezones.length} ${pluginApi?.tr("world-clock.available-timezones")}`
       pointSize: Style.fontSizeXS
       color: Color.mOnSurfaceVariant
     }
