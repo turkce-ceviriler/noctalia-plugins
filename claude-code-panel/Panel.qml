@@ -89,9 +89,9 @@ Item {
 
           ColumnLayout {
             Layout.fillWidth: true
-            spacing: 2
+            spacing: Style.marginXXS
             NText {
-              text: pluginApi?.tr("panel.title") || "Claude Code"
+              text: pluginApi?.tr("panel.title")
               font.weight: Font.Bold
               pointSize: Style.fontSizeM
               color: Color.mOnSurface
@@ -114,7 +114,7 @@ Item {
           }
 
           NButton {
-            text: pluginApi?.tr("panel.newSession") || "New"
+            text: pluginApi?.tr("panel.newSession")
             icon: "plus"
             onClicked: mainInstance?.newSession()
             enabled: !!mainInstance
@@ -128,7 +128,7 @@ Item {
         Layout.preferredHeight: bannerTextEl.implicitHeight + Style.marginS * 2
         color: Qt.rgba(root.bannerColor().r || 0.3, root.bannerColor().g || 0.3, root.bannerColor().b || 0.3, 0.18)
         border.color: root.bannerColor()
-        border.width: 1
+        border.width: Style.borderS
         radius: Style.radiusM
 
         RowLayout {
@@ -169,7 +169,7 @@ Item {
           id: binaryHelp
           anchors.fill: parent
           anchors.margins: Style.marginS
-          text: (pluginApi?.tr("errors.binaryMissing") || "claude not installed") +
+          text: (pluginApi?.tr("errors.binaryMissing")) +
                 "\n   npm i -g @anthropic-ai/claude-code"
           wrapMode: Text.WordWrap
           color: Color.mOnSurface
@@ -251,7 +251,7 @@ Item {
               anchors.centerIn: parent
               spacing: Style.marginXS
               NIcon { icon: "arrow-down"; color: Color.mOnPrimary; pointSize: Style.fontSizeXS }
-              NText { text: "Jump to latest"; color: Color.mOnPrimary; pointSize: Style.fontSizeXS }
+              NText { text: pluginApi?.tr("panel.jumpToLatest"); color: Color.mOnPrimary; pointSize: Style.fontSizeXS }
             }
             MouseArea {
               id: jumpMouse
@@ -274,7 +274,7 @@ Item {
           anchors.fill: parent
           color: Color.mPrimary
           opacity: 0.8
-          radius: 2
+          radius: Style.marginXXS
           SequentialAnimation on opacity {
             running: parent.visible
             loops: Animation.Infinite
@@ -311,7 +311,7 @@ Item {
         NTextInput {
           id: inputField
           Layout.fillWidth: true
-          placeholderText: pluginApi?.tr("panel.inputPlaceholder") || "Ask Claude… (/help for commands)"
+          placeholderText: pluginApi?.tr("panel.inputPlaceholder")
           text: mainInstance?.inputText || ""
           onTextChanged: {
             if (mainInstance) {
@@ -328,7 +328,7 @@ Item {
         }
 
         NButton {
-          text: isGenerating ? (pluginApi?.tr("panel.stop") || "Stop") : (pluginApi?.tr("panel.send") || "Send")
+          text: isGenerating ? (pluginApi?.tr("panel.stop")) : (pluginApi?.tr("panel.send"))
           icon: isGenerating ? "square" : "send"
           enabled: !!mainInstance && (mainInstance.binaryAvailable || isGenerating)
           onClicked: isGenerating ? mainInstance.stopGeneration() : root.submit()
@@ -409,8 +409,8 @@ Item {
     function headerLabel() {
       if (!entry) return "";
       if (entry.role === "user") return "You";
-      if (entry.role === "tool") return pluginApi?.tr("panel.toolResult") || "Result";
-      if (entry.kind === "tool_use") return (pluginApi?.tr("panel.toolUse") || "Tool") + " · " + (entry.meta ? entry.meta.toolName : "");
+      if (entry.role === "tool") return pluginApi?.tr("panel.toolResult");
+      if (entry.kind === "tool_use") return (pluginApi?.tr("panel.toolUse")) + " · " + (entry.meta ? entry.meta.toolName : "");
       if (entry.kind === "thinking") return "Thinking";
       return "Claude";
     }
@@ -432,7 +432,7 @@ Item {
         id: inner
         anchors.fill: parent
         anchors.margins: Style.marginS
-        spacing: 4
+        spacing: Style.marginXS
 
         RowLayout {
           Layout.fillWidth: true
@@ -459,7 +459,7 @@ Item {
           }
           // Copy button
           Rectangle {
-            width: 22; height: 22; radius: 11
+            width: Style.iconSizeS; height: Style.iconSizeS; radius: Style.iconSizeS / 2
             color: copyMouse.containsMouse ? Color.mHover : "transparent"
             visible: entry && entry.text && entry.text !== ""
             NIcon {
@@ -485,7 +485,7 @@ Item {
         // Body — markdown for chat text, preformatted for tool I/O
         RowLayout {
           Layout.fillWidth: true
-          spacing: 2
+          spacing: Style.marginXXS
 
           NText {
             Layout.fillWidth: true
@@ -510,7 +510,7 @@ Item {
             visible: entry && entry.streaming === true
             width: 8; height: 14
             color: Color.mPrimary
-            radius: 1
+            radius: Style.marginXXXS
             Layout.alignment: Qt.AlignBottom
             SequentialAnimation on opacity {
               running: visible

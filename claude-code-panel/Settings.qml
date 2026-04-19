@@ -43,20 +43,20 @@ Item {
       spacing: Style.marginL
 
       // ===== GENERAL =====
-      NText { text: pluginApi?.tr("settings.sectionGeneral") || "General"; font.weight: Font.Bold; pointSize: Style.fontSizeL }
+      NText { text: pluginApi?.tr("settings.sectionGeneral"); font.weight: Font.Bold; pointSize: Style.fontSizeL }
 
       ColumnLayout {
         Layout.fillWidth: true
         spacing: Style.marginS
 
-        NText { text: pluginApi?.tr("settings.binary") || "Binary" }
+        NText { text: pluginApi?.tr("settings.binary") }
         NTextInput {
           Layout.fillWidth: true
           text: cs.binary || "claude"
           onEditingFinished: set("binary", text)
         }
 
-        NText { text: pluginApi?.tr("settings.workingDir") || "Working directory" }
+        NText { text: pluginApi?.tr("settings.workingDir") }
         NTextInput {
           Layout.fillWidth: true
           text: cs.workingDir || ""
@@ -64,7 +64,7 @@ Item {
           onEditingFinished: set("workingDir", text)
         }
         NText {
-          text: pluginApi?.tr("settings.workingDirHelp") || ""
+          text: pluginApi?.tr("settings.workingDirHelp")
           pointSize: Style.fontSizeXS
           color: Color.mOnSurfaceVariant
           Layout.fillWidth: true
@@ -73,22 +73,22 @@ Item {
       }
 
       // ===== PERMISSIONS =====
-      NText { text: pluginApi?.tr("settings.sectionPermissions") || "Permissions"; font.weight: Font.Bold; pointSize: Style.fontSizeL }
+      NText { text: pluginApi?.tr("settings.sectionPermissions"); font.weight: Font.Bold; pointSize: Style.fontSizeL }
 
       ColumnLayout {
         Layout.fillWidth: true
         spacing: Style.marginS
 
-        NText { text: pluginApi?.tr("settings.permissionMode") || "Mode" }
+        NText { text: pluginApi?.tr("settings.permissionMode") }
         ComboBox {
           Layout.fillWidth: true
           textRole: "label"
           valueRole: "value"
           model: [
-            { label: pluginApi?.tr("settings.permModeDefault") || "Default", value: "default" },
-            { label: pluginApi?.tr("settings.permModeAccept")  || "Accept edits", value: "acceptEdits" },
-            { label: pluginApi?.tr("settings.permModePlan")    || "Plan", value: "plan" },
-            { label: pluginApi?.tr("settings.permModeBypass")  || "Bypass (DANGEROUS)", value: "bypassPermissions" }
+            { label: pluginApi?.tr("settings.permModeDefault"), value: "default" },
+            { label: pluginApi?.tr("settings.permModeAccept"), value: "acceptEdits" },
+            { label: pluginApi?.tr("settings.permModePlan"), value: "plan" },
+            { label: pluginApi?.tr("settings.permModeBypass"), value: "bypassPermissions" }
           ]
           currentIndex: {
             var v = cs.permissionMode || "default";
@@ -107,7 +107,7 @@ Item {
           }
         }
 
-        NText { text: pluginApi?.tr("settings.allowedTools") || "Allowed tools" }
+        NText { text: pluginApi?.tr("settings.allowedTools") }
         NTextInput {
           Layout.fillWidth: true
           text: (cs.allowedTools || []).join(",")
@@ -115,14 +115,14 @@ Item {
           onEditingFinished: set("allowedTools", parseList(text))
         }
         NText {
-          text: pluginApi?.tr("settings.allowedToolsHelp") || ""
+          text: pluginApi?.tr("settings.allowedToolsHelp")
           pointSize: Style.fontSizeXS
           color: Color.mOnSurfaceVariant
           Layout.fillWidth: true
           wrapMode: Text.Wrap
         }
 
-        NText { text: pluginApi?.tr("settings.disallowedTools") || "Disallowed tools" }
+        NText { text: pluginApi?.tr("settings.disallowedTools") }
         NTextInput {
           Layout.fillWidth: true
           text: (cs.disallowedTools || []).join(",")
@@ -130,7 +130,7 @@ Item {
           onEditingFinished: set("disallowedTools", parseList(text))
         }
 
-        NText { text: pluginApi?.tr("settings.additionalDirs") || "Additional directories" }
+        NText { text: pluginApi?.tr("settings.additionalDirs") }
         TextArea {
           Layout.fillWidth: true
           Layout.preferredHeight: 72
@@ -139,7 +139,7 @@ Item {
           onEditingFinished: set("additionalDirs", parseList(text))
         }
         NText {
-          text: pluginApi?.tr("settings.additionalDirsHelp") || ""
+          text: pluginApi?.tr("settings.additionalDirsHelp")
           pointSize: Style.fontSizeXS
           color: Color.mOnSurfaceVariant
           Layout.fillWidth: true
@@ -151,7 +151,7 @@ Item {
           Layout.fillWidth: true
           color: cs.dangerouslySkipPermissions ? Qt.rgba(0.9, 0.2, 0.2, 0.15) : "transparent"
           border.color: cs.dangerouslySkipPermissions ? (Color.mError || "#c0392b") : Color.mOutline
-          border.width: 1
+          border.width: Style.borderS
           radius: Style.radiusM
           implicitHeight: dangerousCol.implicitHeight + Style.marginS * 2
 
@@ -159,13 +159,13 @@ Item {
             id: dangerousCol
             anchors.fill: parent
             anchors.margins: Style.marginS
-            spacing: 4
+            spacing: Style.marginXS
 
             RowLayout {
               Layout.fillWidth: true
               CheckBox {
                 checked: cs.dangerouslySkipPermissions === true
-                text: pluginApi?.tr("settings.dangerouslySkip") || "--dangerously-skip-permissions"
+                text: pluginApi?.tr("settings.dangerouslySkip")
                 onToggled: {
                   if (checked) { bypassConfirm.forSkip = true; bypassConfirm.open(); checked = false; }
                   else         { set("dangerouslySkipPermissions", false); }
@@ -174,14 +174,14 @@ Item {
             }
             NText {
               Layout.fillWidth: true
-              text: pluginApi?.tr("settings.dangerouslySkipHelp") || ""
+              text: pluginApi?.tr("settings.dangerouslySkipHelp")
               wrapMode: Text.Wrap
               pointSize: Style.fontSizeXS
               color: Color.mOnSurfaceVariant
             }
             CheckBox {
               checked: cs.requireConfirmBypass !== false
-              text: pluginApi?.tr("settings.confirmBypass") || "Require confirmation"
+              text: pluginApi?.tr("settings.confirmBypass")
               onToggled: set("requireConfirmBypass", checked)
             }
           }
@@ -189,12 +189,12 @@ Item {
       }
 
       // ===== SESSION & MODEL =====
-      NText { text: pluginApi?.tr("settings.sectionSession") || "Session"; font.weight: Font.Bold; pointSize: Style.fontSizeL }
+      NText { text: pluginApi?.tr("settings.sectionSession"); font.weight: Font.Bold; pointSize: Style.fontSizeL }
       ColumnLayout {
         Layout.fillWidth: true
         spacing: Style.marginS
 
-        NText { text: pluginApi?.tr("settings.model") || "Model" }
+        NText { text: pluginApi?.tr("settings.model") }
         NTextInput {
           Layout.fillWidth: true
           text: cs.model || ""
@@ -202,14 +202,14 @@ Item {
           onEditingFinished: set("model", text)
         }
         NText {
-          text: pluginApi?.tr("settings.modelHelp") || ""
+          text: pluginApi?.tr("settings.modelHelp")
           pointSize: Style.fontSizeXS
           color: Color.mOnSurfaceVariant
           Layout.fillWidth: true
           wrapMode: Text.Wrap
         }
 
-        NText { text: pluginApi?.tr("settings.fallbackModel") || "Fallback model" }
+        NText { text: pluginApi?.tr("settings.fallbackModel") }
         NTextInput {
           Layout.fillWidth: true
           text: cs.fallbackModel || ""
@@ -218,12 +218,12 @@ Item {
         }
 
         CheckBox {
-          text: pluginApi?.tr("settings.autoResume") || "Auto-resume last session"
+          text: pluginApi?.tr("settings.autoResume")
           checked: cs.autoResume !== false
           onToggled: set("autoResume", checked)
         }
 
-        NText { text: pluginApi?.tr("settings.maxTurns") || "Max turns (0 = unlimited)" }
+        NText { text: pluginApi?.tr("settings.maxTurns") }
         SpinBox {
           from: 0; to: 9999
           value: cs.maxTurns || 0
@@ -231,26 +231,25 @@ Item {
         }
 
         CheckBox {
-          text: pluginApi?.tr("settings.includePartialMessages") || "Stream partial messages"
+          text: pluginApi?.tr("settings.includePartialMessages")
           checked: cs.includePartialMessages === true
           onToggled: set("includePartialMessages", checked)
         }
 
         CheckBox {
-          text: pluginApi?.tr("settings.injectNoctaliaContext") || "Inject Noctalia context (IPC docs + environment awareness)"
+          text: pluginApi?.tr("settings.injectNoctaliaContext")
           checked: cs.injectNoctaliaContext !== false
           onToggled: set("injectNoctaliaContext", checked)
         }
         NText {
           text: pluginApi?.tr("settings.injectNoctaliaContextHelp")
-                || "When enabled, every turn prepends a system prompt telling Claude it's running inside Noctalia Shell and listing the `qs ipc call` surface so it can drive the desktop directly."
           pointSize: Style.fontSizeXS
           color: Color.mOnSurfaceVariant
           Layout.fillWidth: true
           wrapMode: Text.Wrap
         }
 
-        NText { text: pluginApi?.tr("settings.appendSystemPrompt") || "Append system prompt (your own additions)" }
+        NText { text: pluginApi?.tr("settings.appendSystemPrompt") }
         TextArea {
           Layout.fillWidth: true
           Layout.preferredHeight: 72
@@ -260,12 +259,12 @@ Item {
       }
 
       // ===== MCP =====
-      NText { text: pluginApi?.tr("settings.sectionMcp") || "MCP Servers"; font.weight: Font.Bold; pointSize: Style.fontSizeL }
+      NText { text: pluginApi?.tr("settings.sectionMcp"); font.weight: Font.Bold; pointSize: Style.fontSizeL }
       ColumnLayout {
         Layout.fillWidth: true
         spacing: Style.marginS
 
-        NText { text: pluginApi?.tr("settings.mcpConfigPath") || "MCP config path" }
+        NText { text: pluginApi?.tr("settings.mcpConfigPath") }
         NTextInput {
           Layout.fillWidth: true
           text: cs.mcpConfigPath || ""
@@ -273,19 +272,19 @@ Item {
           onEditingFinished: set("mcpConfigPath", text)
         }
         CheckBox {
-          text: pluginApi?.tr("settings.mcpStrict") || "Strict (use only servers from this file)"
+          text: pluginApi?.tr("settings.mcpStrict")
           checked: cs.strictMcpConfig === true
           onToggled: set("strictMcpConfig", checked)
         }
       }
 
       // ===== PANEL =====
-      NText { text: pluginApi?.tr("settings.sectionPanel") || "Panel"; font.weight: Font.Bold; pointSize: Style.fontSizeL }
+      NText { text: pluginApi?.tr("settings.sectionPanel"); font.weight: Font.Bold; pointSize: Style.fontSizeL }
       ColumnLayout {
         Layout.fillWidth: true
         spacing: Style.marginS
 
-        NText { text: pluginApi?.tr("settings.panelPosition") || "Position" }
+        NText { text: pluginApi?.tr("settings.panelPosition") }
         ComboBox {
           Layout.fillWidth: true
           model: ["right", "left", "center", "top", "bottom"]
@@ -294,19 +293,19 @@ Item {
         }
 
         CheckBox {
-          text: pluginApi?.tr("settings.panelDetached") || "Detached"
+          text: pluginApi?.tr("settings.panelDetached")
           checked: pluginApi?.pluginSettings?.panelDetached ?? true
           onToggled: setTop("panelDetached", checked)
         }
 
-        NText { text: pluginApi?.tr("settings.panelWidth") || "Width" }
+        NText { text: pluginApi?.tr("settings.panelWidth") }
         SpinBox {
           from: 320; to: 1600
           value: pluginApi?.pluginSettings?.panelWidth ?? 620
           onValueModified: setTop("panelWidth", value)
         }
 
-        NText { text: pluginApi?.tr("settings.panelHeightRatio") || "Height ratio" }
+        NText { text: pluginApi?.tr("settings.panelHeightRatio") }
         SpinBox {
           from: 30; to: 100
           value: Math.round((pluginApi?.pluginSettings?.panelHeightRatio ?? 0.9) * 100)
@@ -335,7 +334,7 @@ Item {
         color: Color.mError || "#c0392b"
       }
       NText {
-        text: "Proceed?"
+        text: pluginApi?.tr("dialog.proceed")
         font.weight: Font.Bold
       }
     }
@@ -344,15 +343,15 @@ Item {
     onAccepted: {
       if (forSkip) {
         set("dangerouslySkipPermissions", true);
-        ToastService.showError(pluginApi?.tr("toast.bypassEnabled") || "Bypass enabled");
+        ToastService.showError(pluginApi?.tr("toast.bypassEnabled"));
       } else {
         set("permissionMode", "bypassPermissions");
-        ToastService.showError(pluginApi?.tr("toast.bypassEnabled") || "Bypass enabled");
+        ToastService.showError(pluginApi?.tr("toast.bypassEnabled"));
       }
       forSkip = false;
     }
     onRejected: {
-      ToastService.showNotice(pluginApi?.tr("toast.bypassCancelled") || "Cancelled");
+      ToastService.showNotice(pluginApi?.tr("toast.bypassCancelled"));
       forSkip = false;
     }
   }

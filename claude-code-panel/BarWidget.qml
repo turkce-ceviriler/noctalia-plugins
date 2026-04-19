@@ -75,12 +75,12 @@ Item {
     // Unread-ish dot for active session
     Rectangle {
       visible: root.sessionId !== ""
-      width: 6; height: 6; radius: 3
+      width: Style.marginS; height: Style.marginS; radius: Style.radiusXXXS
       color: root.dangerouslySkip || root.permissionMode === "bypassPermissions"
              ? (Color.mError || "#c0392b") : Color.mPrimary
       anchors.top: parent.top
       anchors.right: parent.right
-      anchors.margins: 3
+      anchors.margins: Style.radiusXXXS
     }
   }
 
@@ -128,18 +128,18 @@ Item {
   }
 
   function buildTooltip() {
-    var t = pluginApi?.tr("widget.tooltipTitle") || "Claude Code";
+    var t = pluginApi?.tr("widget.tooltipTitle");
     if (!binaryAvailable) {
-      t += "\n" + (pluginApi?.tr("widget.notInstalled") || "claude CLI not found");
+      t += "\n" + (pluginApi?.tr("widget.notInstalled"));
       return t;
     }
-    t += "\n" + (pluginApi?.tr("widget.mode") || "Mode") + ": " +
+    t += "\n" + (pluginApi?.tr("widget.mode")) + ": " +
          (dangerouslySkip ? "bypass (DANGEROUSLY_SKIP_PERMISSIONS)" : permissionMode);
-    if (mainInstance?.lastModel) { t += "\n" + (pluginApi?.tr("widget.model") || "Model") + ": " + mainInstance.lastModel; }
-    if (sessionId) { t += "\n" + (pluginApi?.tr("widget.session") || "Session") + ": " + sessionId.slice(0, 8); }
-    if (messageCount > 0) { t += "\n" + (pluginApi?.tr("widget.messages") || "Messages") + ": " + messageCount; }
-    if (isGenerating) { t += "\n" + (pluginApi?.tr("widget.running") || "Running…"); }
-    t += "\n\n" + (pluginApi?.tr("widget.rightClickHint") || "Right-click for options");
+    if (mainInstance?.lastModel) { t += "\n" + (pluginApi?.tr("widget.model")) + ": " + mainInstance.lastModel; }
+    if (sessionId) { t += "\n" + (pluginApi?.tr("widget.session")) + ": " + sessionId.slice(0, 8); }
+    if (messageCount > 0) { t += "\n" + (pluginApi?.tr("widget.messages")) + ": " + messageCount; }
+    if (isGenerating) { t += "\n" + (pluginApi?.tr("widget.running")); }
+    t += "\n\n" + (pluginApi?.tr("widget.rightClickHint"));
     return t;
   }
 

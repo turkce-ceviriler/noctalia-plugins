@@ -251,7 +251,7 @@ Item {
     root.streamingMessageId = "";
     root.errorMessage = "";
     saveState();
-    ToastService.showNotice(pluginApi?.tr("toast.sessionCleared") || "Session cleared");
+    ToastService.showNotice(pluginApi?.tr("toast.sessionCleared"));
   }
 
   // ---------- Per-turn process ----------
@@ -333,7 +333,7 @@ Item {
     if (wasGenerating && root.errorMessage === "") {
       var reason = claudeProcess.stderrBuffer && claudeProcess.stderrBuffer.trim() !== ""
         ? claudeProcess.stderrBuffer.trim()
-        : (pluginApi?.tr("errors.runFailed") || "Run failed");
+        : (pluginApi?.tr("errors.runFailed"));
       root.errorMessage = reason;
     }
     claudeProcess.stderrBuffer = "";
@@ -344,12 +344,12 @@ Item {
   function sendMessage(userText) {
     if (!userText || userText.trim() === "") { return; }
     if (!binaryAvailable) {
-      root.errorMessage = pluginApi?.tr("errors.binaryMissing") || "claude not installed";
+      root.errorMessage = pluginApi?.tr("errors.binaryMissing");
       ToastService.showError(root.errorMessage);
       return;
     }
     if (root.isGenerating || claudeProcess.running) {
-      root.errorMessage = pluginApi?.tr("errors.busy") || "Already working";
+      root.errorMessage = pluginApi?.tr("errors.busy");
       return;
     }
 
@@ -393,7 +393,7 @@ Item {
     stopProcess();
     root.isGenerating = false;
     finalizeStreaming();
-    ToastService.showNotice(pluginApi?.tr("toast.stopped") || "Stopped");
+    ToastService.showNotice(pluginApi?.tr("toast.stopped"));
   }
 
   // ---------- Stream event handling ----------
@@ -484,7 +484,7 @@ Item {
       'elif command -v xclip >/dev/null 2>&1; then printf %s "$1" | xclip -selection clipboard; ' +
       'elif command -v xsel >/dev/null 2>&1; then printf %s "$1" | xsel -b -i; fi';
     Quickshell.execDetached(["sh", "-c", script, "--", text]);
-    ToastService.showNotice(pluginApi?.tr("toast.copied") || "Copied");
+    ToastService.showNotice(pluginApi?.tr("toast.copied"));
   }
 
   // ---------- Slash commands ----------
@@ -522,7 +522,7 @@ Item {
 
       case "/clear":
         clearMessages();
-        ToastService.showNotice(pluginApi?.tr("toast.historyCleared") || "Cleared");
+        ToastService.showNotice(pluginApi?.tr("toast.historyCleared"));
         return true;
 
       case "/new":
@@ -535,11 +535,11 @@ Item {
 
       case "/model":
         if (!rest) {
-          pushMessage({ role: "assistant", kind: "text", text: "Current model: `" + (lastModel || claudeSettings.model || "(default)") + "`" });
+          pushMessage({ role: "assistant", kind: "text", text: pluginApi?.tr("cmd.modelCurrent") + "`" + (lastModel || claudeSettings.model || pluginApi?.tr("cmd.modelDefault")) + "`" });
           return true;
         }
         setClaudeField("model", rest);
-        pushMessage({ role: "assistant", kind: "text", text: "Model set to `" + rest + "` — session will restart on next turn." });
+        pushMessage({ role: "assistant", kind: "text", text: pluginApi?.tr("cmd.modelSet") + rest + "`" });
         stopProcess();
         return true;
 
@@ -548,47 +548,47 @@ Item {
                       "plan": "plan", "bypass": "bypassPermissions", "bypasspermissions": "bypassPermissions" };
         var m = modes[(rest || "").toLowerCase()];
         if (!m) {
-          pushMessage({ role: "assistant", kind: "text", text: "Usage: `/mode default|acceptEdits|plan|bypass`" });
+          pushMessage({ role: "assistant", kind: "text", text: pluginApi?.tr("cmd.modeUsage") });
           return true;
         }
         setClaudeField("permissionMode", m);
-        pushMessage({ role: "assistant", kind: "text", text: "Permission mode set to `" + m + "`." });
+        pushMessage({ role: "assistant", kind: "text", text: pluginApi?.tr("cmd.modeSet") + m + "`." });
         stopProcess();
         return true;
 
       case "/cwd":
         if (!rest) {
-          pushMessage({ role: "assistant", kind: "text", text: "Current cwd: `" + (claudeSettings.workingDir || "(default)") + "`" });
+          pushMessage({ role: "assistant", kind: "text", text: pluginApi?.tr("cmd.cwdCurrent") + "`" + (claudeSettings.workingDir || pluginApi?.tr("cmd.cwdDefault")) + "`" });
           return true;
         }
         setClaudeField("workingDir", rest);
-        pushMessage({ role: "assistant", kind: "text", text: "Working dir set to `" + rest + "`." });
+        pushMessage({ role: "assistant", kind: "text", text: pluginApi?.tr("cmd.cwdSet") + rest + "`." });
         stopProcess();
         return true;
 
       case "/dirs":
         var dirs = rest.split(/[,\n]/).map(function (s) { return s.trim(); }).filter(function (s) { return s !== ""; });
         setClaudeField("additionalDirs", dirs);
-        pushMessage({ role: "assistant", kind: "text", text: "Additional dirs: " + (dirs.length ? dirs.join(", ") : "(none)") });
+        pushMessage({ role: "assistant", kind: "text", text: pluginApi?.tr("cmd.dirsSet") + (dirs.length ? dirs.join(", ") : pluginApi?.tr("cmd.none")) });
         stopProcess();
         return true;
 
       case "/allow":
         var al = rest.split(/[,\s]+/).filter(function (s) { return s !== ""; });
         setClaudeField("allowedTools", al);
-        pushMessage({ role: "assistant", kind: "text", text: "allowedTools: " + (al.length ? al.join(", ") : "(empty → CLI defaults)") });
+        pushMessage({ role: "assistant", kind: "text", text: pluginApi?.tr("cmd.allowSet") + (al.length ? al.join(", ") : pluginApi?.tr("cmd.allowEmpty")) });
         stopProcess();
         return true;
 
       case "/deny":
         var dl = rest.split(/[,\s]+/).filter(function (s) { return s !== ""; });
         setClaudeField("disallowedTools", dl);
-        pushMessage({ role: "assistant", kind: "text", text: "disallowedTools: " + (dl.length ? dl.join(", ") : "(empty)") });
+        pushMessage({ role: "assistant", kind: "text", text: pluginApi?.tr("cmd.denySet") + (dl.length ? dl.join(", ") : pluginApi?.tr("cmd.none")) });
         stopProcess();
         return true;
 
       case "/session":
-        pushMessage({ role: "assistant", kind: "text", text: sessionId ? ("Session: `" + sessionId + "`") : "No active session." });
+        pushMessage({ role: "assistant", kind: "text", text: sessionId ? (pluginApi?.tr("cmd.sessionActive") + "`" + sessionId + "`") : pluginApi?.tr("cmd.sessionNone") });
         return true;
 
       case "/copy":
@@ -637,7 +637,7 @@ Item {
     function stop() { root.stopGeneration(); }
     function clear() {
       root.clearMessages();
-      ToastService.showNotice(pluginApi?.tr("toast.historyCleared") || "Cleared");
+      ToastService.showNotice(pluginApi?.tr("toast.historyCleared"));
     }
     function newSession() { root.newSession(); }
     function setModel(m: string)           { if (m) { root.setClaudeField("model", m); } }

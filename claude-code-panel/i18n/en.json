@@ -31,7 +31,8 @@
     "bannerAccept": "Auto-accept edits — Claude will apply file edits without prompting.",
     "bannerDefault": "Default — Claude will ask before risky actions.",
     "toolUse": "Tool",
-    "toolResult": "Result"
+    "toolResult": "Result",
+    "jumpToLatest": "Jump to latest"
   },
   "settings": {
     "sectionGeneral": "General",
@@ -68,6 +69,26 @@
     "panelPosition": "Panel position",
     "panelDetached": "Detached panel",
     "panelHeightRatio": "Panel height ratio"
+  },
+  "dialog": {
+    "proceed": "Proceed?"
+  },
+  "cmd": {
+    "modelCurrent": "Current model: `",
+    "modelDefault": "default",
+    "modelSet": "Model set to `",
+    "modeUsage": "Usage: `/mode default|acceptEdits|plan|bypass`",
+    "modeSet": "Permission mode set to `",
+    "cwdCurrent": "Current cwd: ",
+    "cwdDefault": "default",
+    "cwdSet": "Working dir set to `",
+    "dirsSet": "Additional dirs: ",
+    "allowSet": "allowedTools: ",
+    "allowEmpty": "(empty \u2192 CLI defaults)",
+    "denySet": "disallowedTools: ",
+    "none": "(none)",
+    "sessionActive": "Session: ",
+    "sessionNone": "No active session."
   },
   "toast": {
     "sessionCleared": "Claude session cleared",
