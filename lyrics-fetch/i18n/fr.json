@@ -16,12 +16,12 @@
             "speed": "Vitesse de défilement",
             "mode": {
                 "title": "Mode de défilement",
-                "always": "Toujours faire défiler",
-                "hover": "Faire défiler au survol",
-                "never": "Ne jamais faire défiler"
+                "always": "Continu",
+                "hover": "Au survol",
+                "never": "Désactivé"
             },
-            "adapt": "Adapter la vitesse à la ligne",
-            "adapt-desc": "Changer la vitesse de défilement selon la longueur de la ligne"
+            "adapt": "Vitesse adaptative",
+            "adapt-desc": "Ajuste la vitesse selon la longueur du texte"
         },
 
         "hide-when-empty": "Masquer lorsqu'il est vide",
