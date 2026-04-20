@@ -1,7 +1,7 @@
 {
   "id": "mimeapp-gui",
   "name": "MimeApp GUI",
-  "version": "1.0.3",
+  "version": "1.0.4",
   "minNoctaliaVersion": "4.1.2",
   "author": "Mathew-D",
   "license": "MIT",
