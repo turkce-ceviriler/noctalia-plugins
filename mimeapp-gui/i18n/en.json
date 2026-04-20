@@ -3,35 +3,35 @@
     "tooltip": "MIME App Defaults"
   },
   "panel": {
-        "status": {
-          "backendNotReady": "Backend path not ready yet.",
-          "noConflicts": "No MIME types with multiple handlers were found.",
-          "noHandlers": "No MIME handlers were found from installed desktop files.",
-          "updatedDefaultParseError": "Default updated, but response parsing failed: {error}",
-          "updatedDefault": "Updated default for {mimeType}."
-        },
-        "error": {
-          "parseScanResult": "Failed to parse scan result: {error}",
-          "scanFailed": "Failed to scan MIME handlers. Ensure python3 is installed and available in PATH.",
-          "scanFailedGeneric": "Scan failed.",
-          "saveFailed": "Failed to save default application. Ensure python3 is installed and available in PATH.",
-          "saveFailedGeneric": "Failed to save default application."
-        },
-        "current": "Current: ",
-        "none": "(none)",
-        "source": "Source: ",
-        "notConfigured": "(not configured)",
-      "tab": {
-        "all": "All",
-        "common": "Common",
-        "audio": "Audio",
-        "video": "Video",
-        "application": "Application",
-        "image": "Image",
-        "text": "Text",
-        "inode": "Filesystem",
-        "other": "Other"
-      },
+    "status": {
+      "backendNotReady": "Backend path not ready yet.",
+      "noConflicts": "No MIME types with multiple handlers were found.",
+      "noHandlers": "No MIME handlers were found from installed desktop files.",
+      "updatedDefaultParseError": "Default updated, but response parsing failed: {error}",
+      "updatedDefault": "Updated default for {mimeType}."
+    },
+    "error": {
+      "parseScanResult": "Failed to parse scan result: {error}",
+      "scanFailed": "Failed to scan MIME handlers. Ensure python3 is installed and available in PATH.",
+      "scanFailedGeneric": "Scan failed.",
+      "saveFailed": "Failed to save default application. Ensure python3 is installed and available in PATH.",
+      "saveFailedGeneric": "Failed to save default application."
+    },
+    "current": "Current: ",
+    "none": "(none)",
+    "source": "Source: ",
+    "notConfigured": "(not configured)",
+    "tab": {
+      "all": "All",
+      "common": "Common",
+      "audio": "Audio",
+      "video": "Video",
+      "application": "Application",
+      "image": "Image",
+      "text": "Text",
+      "inode": "Filesystem",
+      "other": "Other"
+    },
     "title": "MimeApp GUI",
     "refresh": "Refresh",
     "subtitle": "Select a default application for each MIME type. Changes are written to ~/.config/mimeapps.list.",
@@ -44,6 +44,19 @@
       "button": "Apply",
       "saving": "Saving..."
     }
+  },
+  "settings": {
+    "iconColor": {
+      "label": "Icon color",
+      "desc": "Color of the bar widget icon."
+    },
+    "ipcCommands": {
+      "label": "IPC Command",
+      "desc": "Toggle the plugin panel via IPC command"
+    }
+  },
+  "contextMenu": {
+    "widget-settings": "Widget settings"
   },
   "mime": {
     "http": "Web browser",

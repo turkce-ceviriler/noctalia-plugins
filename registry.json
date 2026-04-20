@@ -38,7 +38,7 @@
     {
       "id": "arch-updater",
       "name": "Arch Updater",
-      "version": "1.2.0",
+      "version": "1.2.1",
       "official": false,
       "author": "Ast",
       "description": "A plugin to manage updates on Arch",
@@ -52,7 +52,7 @@
         "System",
         "Utility"
       ],
-      "lastUpdated": "2026-04-09T10:36:41+02:00"
+      "lastUpdated": "2026-04-18T21:57:56+02:00"
     },
     {
       "id": "assistant-panel",
@@ -76,7 +76,7 @@
     {
       "id": "asus-um5606-fan-state",
       "name": "ASUS UM5606 Fan State",
-      "version": "1.1.5",
+      "version": "1.1.6",
       "official": false,
       "author": "ThatOneCalculator",
       "description": "Set the fan state on the ZenBook S 16 UM5606",
@@ -87,12 +87,12 @@
         "Bar",
         "System"
       ],
-      "lastUpdated": "2026-04-01T17:39:18-04:00"
+      "lastUpdated": "2026-04-20T16:57:44+03:00"
     },
     {
       "id": "battery-actions",
       "name": "Battery Actions",
-      "version": "1.0.1",
+      "version": "1.0.2",
       "official": false,
       "author": "itscrystalline",
       "description": "A plugin that allows you to run custom actions when battery state changes.",
@@ -102,7 +102,7 @@
       "tags": [
         "System"
       ],
-      "lastUpdated": "2026-02-26T19:55:06+01:00"
+      "lastUpdated": "2026-04-20T16:57:44+03:00"
     },
     {
       "id": "battery-threshold",
@@ -124,7 +124,7 @@
     {
       "id": "calendar-widget",
       "name": "Desktop Calendar",
-      "version": "1.0.5",
+      "version": "1.0.7",
       "official": false,
       "author": "Simon",
       "description": "Monthly calendar with today highlighted.",
@@ -135,7 +135,7 @@
         "Desktop",
         "Utility"
       ],
-      "lastUpdated": "2026-04-06T17:15:27+02:00"
+      "lastUpdated": "2026-04-20T16:57:44+03:00"
     },
     {
       "id": "calibre-provider",
@@ -699,7 +699,7 @@
     {
       "id": "mimeapp-gui",
       "name": "MimeApp GUI",
-      "version": "1.0.2",
+      "version": "1.0.3",
       "official": false,
       "author": "Mathew-D",
       "description": "GUI for inspecting MIME handlers and updating default applications in mimeapps.list (requires python3).",
@@ -712,7 +712,7 @@
         "Utility",
         "System"
       ],
-      "lastUpdated": "2026-04-16T23:12:28+07:00"
+      "lastUpdated": "2026-04-19T01:24:08+07:00"
     },
     {
       "id": "mini-docker",
@@ -803,7 +803,7 @@
     {
       "id": "mpris-lyric",
       "name": "MPRIS Lyric",
-      "version": "1.0.3",
+      "version": "1.0.4",
       "official": false,
       "author": "DBeidachazi",
       "description": "Display synchronized lyrics from MPRIS-compatible music players (e.g., go-musicfox) in the bar.",
@@ -814,7 +814,7 @@
         "Bar",
         "Music"
       ],
-      "lastUpdated": "2026-03-18T09:37:17+08:00"
+      "lastUpdated": "2026-04-19T11:52:26+02:00"
     },
     {
       "id": "mpvpaper",
@@ -1286,26 +1286,27 @@
     },
     {
       "id": "screen-shot-and-record",
-      "name": "ScreenShot & Record in Hyprland",
-      "version": "1.0.2",
+      "name": "ScreenShot & Record",
+      "version": "1.0.3",
       "official": false,
       "author": "Pulsar",
-      "description": "A screenshot plugin with OCR, Google Lens integration, and screen recording. Only Support Hyprland.",
-      "repository": "https://github.com/Pulsar33550336/pulsar-ns-plugins",
+      "description": "A screenshot plugin with OCR, Google Lens integration, and screen recording. Supports Sway, Hyprland and MangoWM.",
+      "repository": "https://github.com/noctalia-dev/noctalia-plugins",
       "minNoctaliaVersion": "3.6.0",
       "license": "GPL-3.0-or-later",
       "tags": [
         "Bar",
         "Panel",
         "Utility",
-        "Hyprland"
+        "Hyprland",
+        "Sway"
       ],
-      "lastUpdated": "2026-03-29T19:05:12-04:00"
+      "lastUpdated": "2026-04-16T17:07:27-04:00"
     },
     {
       "id": "screen-toolkit",
       "name": "Screen Toolkit",
-      "version": "1.1.1",
+      "version": "1.1.3",
       "official": false,
       "author": "ycf-anon",
       "description": "A set of screen tools: color picker, annotate, record, pin, OCR, QR scanner, palette, measure, and webcam mirror.",
@@ -1318,12 +1319,12 @@
         "Utility",
         "System"
       ],
-      "lastUpdated": "2026-04-14T00:53:21+01:00"
+      "lastUpdated": "2026-04-20T16:57:44+03:00"
     },
     {
       "id": "screenshot",
       "name": "Screenshot",
-      "version": "1.1.1",
+      "version": "1.2.1",
       "official": false,
       "author": "Cleboost",
       "description": "Quick screenshot button in bar for Hyprland, Sway, and Niri",
@@ -1334,7 +1335,7 @@
         "Bar",
         "Utility"
       ],
-      "lastUpdated": "2026-04-11T00:42:02+02:00"
+      "lastUpdated": "2026-04-19T00:00:51+02:00"
     },
     {
       "id": "shell-profiles",
@@ -1407,7 +1408,7 @@
     {
       "id": "special-workspaces",
       "name": "Special Workspaces (Hyprland)",
-      "version": "1.1.0",
+      "version": "1.1.1",
       "official": false,
       "author": "Qholin",
       "description": "Configurable Hyprland special workspaces indicator for the bar.",
@@ -1419,7 +1420,7 @@
         "Productivity",
         "Hyprland"
       ],
-      "lastUpdated": "2026-04-08T00:17:39+03:00"
+      "lastUpdated": "2026-04-18T22:57:42+02:00"
     },
     {
       "id": "squeekboard-toggle",
@@ -1708,7 +1709,7 @@
     {
       "id": "wallcards",
       "name": "Wallcards",
-      "version": "0.0.3",
+      "version": "0.0.4",
       "official": false,
       "author": "tonigineer",
       "description": "A `lively` wallpaper selector.",
@@ -1719,12 +1720,12 @@
         "Desktop",
         "Theming"
       ],
-      "lastUpdated": "2026-03-29T19:05:12-04:00"
+      "lastUpdated": "2026-04-18T21:54:45+02:00"
     },
     {
       "id": "weather-indicator",
       "name": "Weather Indicator",
-      "version": "1.1.4",
+      "version": "1.1.5",
       "official": false,
       "author": "Sovereign",
       "description": "Shows the current weather condition and temperature.",
@@ -1734,7 +1735,7 @@
       "tags": [
         "Bar"
       ],
-      "lastUpdated": "2026-03-31T09:11:06+02:00"
+      "lastUpdated": "2026-04-18T18:57:53+02:00"
     },
     {
       "id": "web-search",

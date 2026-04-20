@@ -24,23 +24,25 @@ This plugin exposes an IPC target so the panel can be opened from keybinds, scri
 
 ```txt
 target plugin:mimeapp-gui
-	function open(): void
+  function openPanel(): void
 ```
 
 Example commands:
 
 ```bash
-qs -c noctalia-shell ipc call plugin:mimeapp-gui open
+qs -c noctalia-shell ipc call plugin:mimeapp-gui openPanel
 ```
 
 Example `.desktop` `Exec` line:
 
 ```txt
-Exec=qs -c noctalia-shell ipc call plugin:mimeapp-gui open
+Exec=qs -c noctalia-shell ipc call plugin:mimeapp-gui openPanel
 ```
 
 ## Features
 
 - The "Common" tab visually groups common types (browsers, images, music, video, archives, etc.) and displays typical file extensions beside each group. 
 - Changing a default updates only the selected MIME type in `~/.config/mimeapps.list`.
+- Changing the BarWidget icon colors inside plugin's settings panel
 - `ControlCenterWidget` for Control Center shortcuts
+- Copy the IPC Command directly inside the plugin's settings panel

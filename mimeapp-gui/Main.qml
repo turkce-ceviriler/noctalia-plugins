@@ -3,20 +3,19 @@ import Quickshell
 import Quickshell.Io
 
 Item {
-  id: root
+	id: root
 
-  property var pluginApi: null
+	property var pluginApi: null
 
-  IpcHandler {
-    target: "plugin:mimeapp-gui"
+	IpcHandler {
+		target: "plugin:mimeapp-gui"
 
-    function open() {
-      if (root.pluginApi) {
-        root.pluginApi.withCurrentScreen(screen => {
-          root.pluginApi.openPanel(screen)
-        })
-      }
-    }
-
-  }
+		function openPanel() {
+			if (root.pluginApi) {
+				root.pluginApi.withCurrentScreen(screen => {
+					root.pluginApi.openPanel(screen)
+				})
+			}
+		}
+	}
 }
