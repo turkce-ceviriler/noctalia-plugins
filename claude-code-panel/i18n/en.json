@@ -23,8 +23,8 @@
     "stop": "Stop",
     "newSession": "New",
     "working": "Claude is working…",
-    "cwd": "Working dir",
-    "sessionId": "Session",
+    "cwdValue": "Working dir: {path}",
+    "sessionIdValue": "Session: {id}",
     "noSession": "New session",
     "bannerBypass": "Permissions are BYPASSED. Every tool runs without asking. Use only in trusted, sandboxed directories.",
     "bannerPlan": "Plan mode — Claude can read and think, but cannot write or run commands.",
@@ -71,7 +71,9 @@
     "panelHeightRatio": "Panel height ratio"
   },
   "dialog": {
-    "proceed": "Proceed?"
+    "proceed": "Proceed?",
+    "bypassSkipWarning": "You are about to enable --dangerously-skip-permissions.\nClaude will run every tool (including Bash) without prompting.\nUse only in a throwaway sandbox.",
+    "bypassModeWarning": "You are about to set permission mode to bypassPermissions.\nClaude will run every tool without prompting."
   },
   "cmd": {
     "modelCurrent": "Current model: `",

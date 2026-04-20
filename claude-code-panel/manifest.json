@@ -1,7 +1,7 @@
 {
   "id": "claude-code-panel",
   "name": "Claude Code Panel",
-  "version": "0.1.1",
+  "version": "0.1.2",
   "minNoctaliaVersion": "4.1.2",
   "author": "d7om",
   "license": "MIT",
@@ -11,7 +11,6 @@
     "Bar",
     "Panel",
     "AI",
-    "Agent",
     "Productivity"
   ],
   "entryPoints": {

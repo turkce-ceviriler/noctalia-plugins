@@ -479,10 +479,7 @@ Item {
   function copyToClipboard(text) {
     if (typeof text !== "string" || text === "") { return; }
     // Pass text as argv $1 — no shell interpolation. Handles Wayland + X11.
-    var script =
-      'if command -v wl-copy >/dev/null 2>&1; then printf %s "$1" | wl-copy; ' +
-      'elif command -v xclip >/dev/null 2>&1; then printf %s "$1" | xclip -selection clipboard; ' +
-      'elif command -v xsel >/dev/null 2>&1; then printf %s "$1" | xsel -b -i; fi';
+    const script = `if command -v wl-copy >/dev/null 2>&1; then printf %s "$1" | wl-copy; elif command -v xclip >/dev/null 2>&1; then printf %s "$1" | xclip -selection clipboard; elif command -v xsel >/dev/null 2>&1; then printf %s "$1" | xsel -b -i; fi`;
     Quickshell.execDetached(["sh", "-c", script, "--", text]);
     ToastService.showNotice(pluginApi?.tr("toast.copied"));
   }

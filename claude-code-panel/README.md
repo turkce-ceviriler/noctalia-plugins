@@ -43,20 +43,22 @@ The plugin never sees your Anthropic credentials — auth lives in `~/.claude/`.
 
 ## Installation
 
-From the official Noctalia plugins monorepo:
+Open Noctalia's in-app plugin browser and search for **Claude Code Panel**, then install.
+
+1. Enable **Claude Code Panel** in *Settings → Plugins*
+2. Add the bar widget in *Settings → Bar*
+3. Open the panel from the bar icon — or keybind it
+
+<details>
+<summary>Manual install</summary>
 
 ```bash
 git clone --depth=1 https://github.com/noctalia-dev/noctalia-plugins /tmp/ncp \
   && cp -r /tmp/ncp/claude-code-panel ~/.config/noctalia/plugins/
 ```
 
-Or, if you already have Noctalia's in-app plugin browser, search for **Claude Code Panel**
-and install.
-
-1. Restart Noctalia (or reload plugins)
-2. Enable **Claude Code Panel** in *Settings → Plugins*
-3. Add the bar widget in *Settings → Bar*
-4. Open the panel from the bar icon — or keybind it
+Restart Noctalia (or reload plugins), then follow the steps above.
+</details>
 
 ---
 

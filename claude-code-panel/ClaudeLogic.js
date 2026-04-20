@@ -444,12 +444,3 @@ function prepareStateForSave(state, maxHistory) {
   }, null, 2);
 }
 
-// Human-readable label for a permission mode
-function permissionModeLabel(mode) {
-  switch (mode) {
-    case "acceptEdits":      return "Auto-accept edits";
-    case "plan":             return "Plan mode (read-only)";
-    case "bypassPermissions":return "Bypass permissions";
-    default:                 return "Prompt for permissions";
-  }
-}

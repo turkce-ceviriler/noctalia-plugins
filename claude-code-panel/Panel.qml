@@ -43,10 +43,10 @@ Item {
   readonly property bool isGenerating: mainInstance?.isGenerating || false
 
   function bannerColor() {
-    if (dangerouslySkip || permissionMode === "bypassPermissions") { return Color.mError || "#c0392b"; }
-    if (permissionMode === "acceptEdits") { return Color.mSecondary || "#e67e22"; }
-    if (permissionMode === "plan") { return Color.mTertiary || "#27ae60"; }
-    return Color.mPrimary || "#3498db";
+    if (dangerouslySkip || permissionMode === "bypassPermissions") { return Color.mError; }
+    if (permissionMode === "acceptEdits") { return Color.mSecondary; }
+    if (permissionMode === "plan") { return Color.mTertiary; }
+    return Color.mPrimary;
   }
 
   function bannerText() {
@@ -102,10 +102,10 @@ Item {
               text: {
                 var parts = [];
                 var sid = mainInstance?.sessionId || "";
-                parts.push(sid ? (pluginApi?.tr("panel.sessionId") + ": " + sid.slice(0, 8)) : (pluginApi?.tr("panel.noSession")));
+                parts.push(sid ? pluginApi?.tr("panel.sessionIdValue", { id: sid.slice(0, 8) }) : pluginApi?.tr("panel.noSession"));
                 if (mainInstance?.lastModel) { parts.push(mainInstance.lastModel); }
                 var wd = mainInstance?.workingDir || "";
-                if (wd) { parts.push(pluginApi?.tr("panel.cwd") + ": " + wd); }
+                if (wd) { parts.push(pluginApi?.tr("panel.cwdValue", { path: wd })); }
                 return parts.join(" · ");
               }
               pointSize: Style.fontSizeXS
@@ -126,7 +126,7 @@ Item {
       Rectangle {
         Layout.fillWidth: true
         Layout.preferredHeight: bannerTextEl.implicitHeight + Style.marginS * 2
-        color: Qt.rgba(root.bannerColor().r || 0.3, root.bannerColor().g || 0.3, root.bannerColor().b || 0.3, 0.18)
+        color: Qt.rgba(root.bannerColor().r, root.bannerColor().g, root.bannerColor().b, 0.18)
         border.color: root.bannerColor()
         border.width: Style.borderS
         radius: Style.radiusM
@@ -163,7 +163,7 @@ Item {
         visible: mainInstance && mainInstance.binaryChecked && !mainInstance.binaryAvailable
         Layout.preferredHeight: visible ? binaryHelp.implicitHeight + Style.marginS * 2 : 0
         color: Qt.rgba(0.9, 0.2, 0.2, 0.15)
-        border.color: Color.mError || "#c0392b"
+        border.color: Color.mError
         radius: Style.radiusM
         NText {
           id: binaryHelp
@@ -185,7 +185,7 @@ Item {
         radius: Style.radiusL
         clip: true
 
-        ListView {
+        NListView {
           id: list
           anchors.fill: parent
           anchors.margins: Style.marginS
@@ -193,6 +193,7 @@ Item {
           model: mainInstance?.messages || []
           cacheBuffer: 400
           boundsBehavior: Flickable.StopAtBounds
+          reserveScrollbarSpace: true
 
           // Auto-scroll that respects the user: stickBottom flips off when they scroll up.
           property bool stickBottom: true
@@ -214,23 +215,19 @@ Item {
             // Last bubble growing mid-stream — follow it down if we're already at the bottom.
             if (stickBottom) { Qt.callLater(scrollToEnd); }
           }
-          onMovementEnded: {
+          onMovingChanged: {
             // User finished a scroll gesture — lock/unlock auto-follow.
-            stickBottom = isAtBottom();
+            if (!moving) { stickBottom = isAtBottom(); }
           }
-          onFlickEnded: {
-            stickBottom = isAtBottom();
+          onFlickingChanged: {
+            if (!flicking) { stickBottom = isAtBottom(); }
           }
 
           delegate: MessageBubble {
-            width: ListView.view ? ListView.view.width : 0
+            width: list.availableWidth
             entry: modelData
             pluginApi: root.pluginApi
             mainInstance: root.mainInstance
-          }
-
-          ScrollBar.vertical: ScrollBar {
-            onPressedChanged: if (!pressed) { list.stickBottom = list.isAtBottom(); }
           }
 
           // Jump-to-bottom pill, appears only when auto-follow is off.
@@ -290,7 +287,7 @@ Item {
         visible: mainInstance && mainInstance.errorMessage !== ""
         Layout.preferredHeight: visible ? errText.implicitHeight + Style.marginS * 2 : 0
         color: Qt.rgba(0.9, 0.2, 0.2, 0.15)
-        border.color: Color.mError || "#c0392b"
+        border.color: Color.mError
         radius: Style.radiusM
         NText {
           id: errText
@@ -298,7 +295,7 @@ Item {
           anchors.margins: Style.marginS
           text: mainInstance?.errorMessage || ""
           wrapMode: Text.Wrap
-          color: Color.mError || "#c0392b"
+          color: Color.mError
           pointSize: Style.fontSizeXS
         }
       }
@@ -378,11 +375,11 @@ Item {
 
     function bubbleColor() {
       if (!entry) return "transparent";
-      if (entry.role === "user") return Color.mPrimaryContainer || "#355";
-      if (entry.role === "tool") return Color.mSurface || "#222";
-      if (entry.kind === "tool_use") return Color.mSecondaryContainer || "#443";
+      if (entry.role === "user") return Color.mPrimaryContainer;
+      if (entry.role === "tool") return Color.mSurface;
+      if (entry.kind === "tool_use") return Color.mSecondaryContainer;
       if (entry.kind === "thinking") return Qt.rgba(0.4, 0.4, 0.7, 0.1);
-      return Color.mSurface || "#222";
+      return Color.mSurface;
     }
 
     function headerIcon() {
@@ -398,9 +395,9 @@ Item {
       if (!entry) return Color.mOnSurface;
       if (entry.kind === "tool_use") {
         var c = entry.meta ? entry.meta.classification : "safe";
-        if (c === "exec") return Color.mError || "#c0392b";
-        if (c === "write") return Color.mSecondary || "#e67e22";
-        if (c === "network") return Color.mTertiary || "#3498db";
+        if (c === "exec") return Color.mError;
+        if (c === "write") return Color.mSecondary;
+        if (c === "network") return Color.mTertiary;
       }
       if (entry.role === "tool" && entry.meta && entry.meta.isError) return Color.mError;
       return Color.mOnSurface;

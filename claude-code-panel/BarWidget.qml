@@ -37,9 +37,9 @@ Item {
 
   function accentColor() {
     if (!binaryAvailable) { return Color.mOnSurfaceVariant; }
-    if (dangerouslySkip || permissionMode === "bypassPermissions") { return Color.mError || "#c0392b"; }
-    if (permissionMode === "acceptEdits") { return Color.mSecondary || "#e67e22"; }
-    if (permissionMode === "plan") { return Color.mTertiary || "#27ae60"; }
+    if (dangerouslySkip || permissionMode === "bypassPermissions") { return Color.mError; }
+    if (permissionMode === "acceptEdits") { return Color.mSecondary; }
+    if (permissionMode === "plan") { return Color.mTertiary; }
     if (isGenerating) { return Color.mPrimary; }
     return Color.mOnSurface;
   }
@@ -77,7 +77,7 @@ Item {
       visible: root.sessionId !== ""
       width: Style.marginS; height: Style.marginS; radius: Style.radiusXXXS
       color: root.dangerouslySkip || root.permissionMode === "bypassPermissions"
-             ? (Color.mError || "#c0392b") : Color.mPrimary
+             ? Color.mError : Color.mPrimary
       anchors.top: parent.top
       anchors.right: parent.right
       anchors.margins: Style.radiusXXXS
