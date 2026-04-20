@@ -803,7 +803,7 @@
     {
       "id": "mpris-lyric",
       "name": "MPRIS Lyric",
-      "version": "1.0.3",
+      "version": "1.0.4",
       "official": false,
       "author": "DBeidachazi",
       "description": "Display synchronized lyrics from MPRIS-compatible music players (e.g., go-musicfox) in the bar.",
@@ -814,7 +814,7 @@
         "Bar",
         "Music"
       ],
-      "lastUpdated": "2026-03-18T09:37:17+08:00"
+      "lastUpdated": "2026-04-19T11:52:26+02:00"
     },
     {
       "id": "mpvpaper",
