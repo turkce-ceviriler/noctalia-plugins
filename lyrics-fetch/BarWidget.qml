@@ -28,6 +28,12 @@ Item {
     property bool hideWhenEmpty: pluginApi?.pluginSettings?.hideWhenEmpty ?? true
     property string customFontFamily: pluginApi?.pluginSettings?.fontFamily ?? Settings.data.ui.fontDefault
     property bool adaptScrollSpeed: pluginApi?.pluginSettings?.adaptScrollSpeed ?? true
+    property string verticalRotationDirectionSetting: pluginApi?.pluginSettings?.verticalRotationDirection ?? "auto"
+    property string verticalRotationDirection: {
+        if (verticalRotationDirectionSetting === "cw" || verticalRotationDirectionSetting === "ccw")
+            return verticalRotationDirectionSetting;
+        return barPosition === "left" ? "cw" : "ccw";
+    }
 
     visible: !hideWhenEmpty || (lyricText !== "No Lyrics" && lyricText !== "")
 
@@ -35,11 +41,13 @@ Item {
     property real scaling: 1.0
 
     readonly property int iconSize: Math.round(18 * scaling)
-    readonly property int verticalSize: Math.round((Style.baseWidgetSize - 5) * scaling)
-    readonly property bool isVertical: Settings.data.bar.position === "left" || Settings.data.bar.position === "right"
+    readonly property string barPosition: Settings.data.bar.position
+    readonly property bool isVertical: barPosition === "left" || barPosition === "right"
+    readonly property string verticalTooltipSide: barPosition === "left" ? "right" : "left"
+    readonly property real capsuleThickness: Style.capsuleHeight
 
-    implicitWidth: visible ? (isVertical ? verticalSize : container.width) : 0
-    implicitHeight: visible ? (isVertical ? verticalSize : Style.capsuleHeight) : 0
+    implicitWidth: visible ? (isVertical ? capsuleThickness : container.width) : 0
+    implicitHeight: visible ? (isVertical ? container.height : Style.capsuleHeight) : 0
 
     Behavior on implicitWidth {
         NumberAnimation {
@@ -59,8 +67,8 @@ Item {
         anchors.left: parent.left
         anchors.verticalCenter: parent.verticalCenter
 
-        width: isVertical ? verticalSize : root.lyricText === "​" ? iconSize + Style.marginS : root.widgetWidth 
-        height: isVertical ? verticalSize : Style.capsuleHeight
+        width: isVertical ? capsuleThickness : root.lyricText === "​" ? iconSize + Style.marginS : root.widgetWidth
+        height: isVertical ? (root.lyricText === "​" ? iconSize + Style.marginS : root.widgetWidth) : Style.capsuleHeight
 
         radius: Style.radiusM
         color: Style.capsuleColor
@@ -81,54 +89,90 @@ Item {
             }
         }
 
-        RowLayout {
+        Item {
+            id: contentWrapper
             anchors.fill: parent
-            anchors.margins: isVertical ? 0 : Style.marginS * scaling
-            spacing: Style.marginS * scaling
-            visible: !isVertical
 
-            NIcon {
-                Layout.alignment: Qt.AlignVCenter
-                Layout.preferredWidth: iconSize
-                Layout.preferredHeight: iconSize
-                icon: "music"
-                color: root.hovered ? Color.mPrimary : Color.mOnSurfaceVariant
-                pointSize: Style.fontSizeL * scaling
-            }
+            RowLayout {
+                anchors.fill: parent
+                anchors.margins: Style.marginS * scaling
+                spacing: Style.marginS * scaling
+                visible: !isVertical
 
-            Item {
-                Layout.fillWidth: true
-                Layout.fillHeight: true
-                clip: true
+                NIcon {
+                    Layout.alignment: Qt.AlignVCenter
+                    Layout.preferredWidth: iconSize
+                    Layout.preferredHeight: iconSize
+                    icon: "music"
+                    color: root.hovered ? Color.mPrimary : Color.mOnSurfaceVariant
+                    pointSize: Style.fontSizeL * scaling
+                }
 
-                ScrollingText {
-                    anchors.fill: parent
-                    anchors.verticalCenter: parent.verticalCenter
+                Item {
+                    Layout.fillWidth: true
+                    Layout.fillHeight: true
+                    clip: true
 
-                    text: root.lyricText
-                    textColor: Color.mOnSurface
+                    ScrollingText {
+                        anchors.fill: parent
+                        anchors.verticalCenter: parent.verticalCenter
 
-                    fontSize: root.customFontSize * scaling
-                    fontFamily: root.customFontFamily
+                        text: root.lyricText
+                        textColor: Color.mOnSurface
 
-                    mode: root.scrollMode
-                    speed: root.adaptScrollSpeed ? (titleMetrics.contentWidth - parent.width + 50) / root.lyricInterval * 1250 : root.scrollSpeed
-                    needsScroll: titleMetrics.contentWidth > parent.width
+                        fontSize: root.customFontSize * scaling
+                        fontFamily: root.customFontFamily
+
+                        mode: root.scrollMode
+                        speed: root.adaptScrollSpeed ? adaptiveSpeed : root.scrollSpeed
+                        needsScroll: titleMetrics.contentWidth > parent.width
+                    }
                 }
             }
-        }
 
-        Item {
-            visible: isVertical
-            anchors.centerIn: parent
-            width: parent.width
-            height: parent.height
+            ColumnLayout {
+                anchors.fill: parent
+                anchors.margins: Style.marginS * scaling
+                spacing: Style.marginS * scaling
+                visible: isVertical
 
-            NIcon {
-                anchors.centerIn: parent
-                icon: "music"
-                color: root.hovered ? Color.mPrimary : Color.mOnSurfaceVariant
-                pointSize: Style.fontSizeM * scaling
+                NIcon {
+                    Layout.alignment: Qt.AlignHCenter
+                    Layout.preferredWidth: iconSize
+                    Layout.preferredHeight: iconSize
+                    icon: "music"
+                    color: root.hovered ? Color.mPrimary : Color.mOnSurfaceVariant
+                    pointSize: Style.fontSizeL * scaling
+                }
+
+                Item {
+                    Layout.fillWidth: true
+                    Layout.fillHeight: true
+                    clip: true
+
+                    Item {
+                        anchors.centerIn: parent
+                        width: parent.height
+                        height: parent.width
+                        rotation: root.verticalRotationDirection === "cw" ? -90 : 90
+                        transformOrigin: Item.Center
+
+                        ScrollingText {
+                            anchors.fill: parent
+                            anchors.verticalCenter: parent.verticalCenter
+
+                            text: root.lyricText
+                            textColor: Color.mOnSurface
+
+                            fontSize: root.customFontSize * scaling
+                            fontFamily: root.customFontFamily
+
+                            mode: root.scrollMode
+                            speed: root.adaptScrollSpeed ? adaptiveSpeed : root.scrollSpeed
+                            needsScroll: titleMetrics.contentWidth > parent.width
+                        }
+                    }
+                }
             }
         }
 
@@ -162,16 +206,16 @@ Item {
             onEntered: {
                 root.hovered = true;
                 if (isVertical)
-                    TooltipService.show(root, root.lyricText, "right");
+                    TooltipService.show(root, root.lyricText, root.verticalTooltipSide);
             }
             onExited: {
                 root.hovered = false;
                 TooltipService.hide();
             }
-            onClicked: (mouse) => {
-                // Logger.d("MouseArea", "mouse clicked:", mouse.button)   
+            onClicked: mouse => {
+                // Logger.d("MouseArea", "mouse clicked:", mouse.button)
                 if (mouse.button === Qt.LeftButton) {
-                    openMediaPlayer.running = true
+                    openMediaPlayer.running = true;
                 } else if (mouse.button === Qt.RightButton) {
                     PanelService.showContextMenu(contextMenu, root, root.screen);
                 }
@@ -203,8 +247,20 @@ Item {
         property real fontSize
         property string fontFamily
         property string mode
-        property int speed
+        property real speed
         property bool needsScroll
+        readonly property real adaptiveSpeed: {
+            if (!root.adaptScrollSpeed)
+                return root.scrollSpeed;
+            if (root.lyricInterval <= 0)
+                return root.scrollSpeed;
+
+            const distance = titleMetrics.contentWidth - scrollText.width + 50;
+            if (distance <= 0)
+                return root.scrollSpeed;
+
+            return Math.max(1, (distance / root.lyricInterval) * 1250);
+        }
 
         implicitHeight: titleText.height
         clip: true
@@ -316,6 +372,7 @@ Item {
 
             RowLayout {
                 spacing: root.widgetWidth
+                x: root.isVertical && root.verticalRotationDirection === "cw" ? parent.height - height : 0
 
                 NText {
                     id: titleText

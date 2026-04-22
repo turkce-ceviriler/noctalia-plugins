@@ -16,6 +16,14 @@ ColumnLayout {
     property string draftFontFamily: pluginApi?.pluginSettings?.fontFamily ?? "Inter"
     property bool draftAdaptScrollSpeed: pluginApi?.pluginSettings?.adaptScrollSpeed ?? true
     property bool draftHideWhenPaused: pluginApi?.pluginSettings?.hideWhenPaused ?? true
+    property string draftVerticalRotationDirection: {
+        const savedDirection = pluginApi?.pluginSettings?.verticalRotationDirection;
+        if (savedDirection === "auto" || savedDirection === "cw" || savedDirection === "ccw")
+            return savedDirection;
+        return "auto";
+    }
+
+    readonly property bool isBarVertical: Settings.data.bar.position === "left" || Settings.data.bar.position === "right"
 
     spacing: Style.marginM
 
@@ -26,6 +34,7 @@ ColumnLayout {
             pluginApi.pluginSettings.scrollMode = draftMode;
             pluginApi.pluginSettings.adaptScrollSpeed = draftAdaptScrollSpeed;
             pluginApi.pluginSettings.hideWhenPaused = draftHideWhenPaused;
+            pluginApi.pluginSettings.verticalRotationDirection = draftVerticalRotationDirection;
             pluginApi.pluginSettings.fontSize = draftFontSize;
             pluginApi.pluginSettings.hideWhenEmpty = draftHideWhenEmpty;
             // Save the selected font
@@ -142,6 +151,29 @@ ColumnLayout {
         onToggled: newState => {
             draftHideWhenEmpty = newState;
         }
+    }
+
+    NComboBox {
+        visible: root.isBarVertical
+        label: pluginApi?.tr("settings.vertical-rotation.title")
+        description: pluginApi?.tr("settings.vertical-rotation.description")
+        Layout.fillWidth: true
+        model: [
+            {
+                name: pluginApi?.tr("settings.vertical-rotation.auto"),
+                key: "auto"
+            },
+            {
+                name: pluginApi?.tr("settings.vertical-rotation.ccw"),
+                key: "ccw"
+            },
+            {
+                name: pluginApi?.tr("settings.vertical-rotation.cw"),
+                key: "cw"
+            }
+        ]
+        currentKey: draftVerticalRotationDirection
+        onSelected: key => draftVerticalRotationDirection = key
     }
 
     NToggle {
