@@ -5,8 +5,21 @@
 #   1: cache directory path
 #   2..n: screenshot file paths to keep
 
+set -u
+
 cache_dir="$1"
 shift
+
+case "$cache_dir" in
+  ""|"/")
+    exit 20
+    ;;
+  */plugins/*)
+    ;;
+  *)
+    exit 20
+    ;;
+esac
 
 mkdir -p "$cache_dir"
 
