@@ -272,7 +272,7 @@
     {
       "id": "cookie-clock",
       "name": "Cookie Clock",
-      "version": "1.0.0",
+      "version": "1.0.1",
       "official": false,
       "author": "elrondforwin",
       "description": "An analog cookie-shaped clock desktop widget. Features a sine-wave cookie background, hour/minute/second hands, dial marks and date bubbless.",
@@ -283,7 +283,7 @@
         "Desktop",
         "Fun"
       ],
-      "lastUpdated": "2026-04-21T18:43:05+03:00"
+      "lastUpdated": "2026-04-23T21:39:21+02:00"
     },
     {
       "id": "currency-exchange",
